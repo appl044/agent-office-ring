@@ -16,6 +16,9 @@ header.bar { display: flex; justify-content: space-between; gap: 16px; align-ite
 header.bar h1 { font-size: 18px; margin: 0; }
 .views { display: flex; gap: 8px; }
 .views a, button.quiet { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 8px 12px; border-radius: 8px; text-decoration: none; cursor: pointer; }
+button.quiet.active { border-color: var(--accent); }
+.idea { display: grid; gap: 12px; max-width: 980px; }
+.idea img { width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0c0e12; }
 .wrap { padding: 16px 20px 40px; }
 table { width: 100%; border-collapse: collapse; background: var(--panel); }
 th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 8px 10px; vertical-align: top; }

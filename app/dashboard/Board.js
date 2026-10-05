@@ -80,14 +80,26 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <div className="muted">Default view is the grid. Approved join requests appear here as in the ring.</div>
         </div>
         <div className="views">
-          <button className="quiet" type="button" onClick={() => setView("grid")}>Grid</button>
-          <button className="quiet" type="button" onClick={() => setView("office")}>Office</button>
+          <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
+          <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
+          <button className={view === "claw3d" ? "quiet active" : "quiet"} type="button" onClick={() => setView("claw3d")}>Claw3D</button>
           <form method="post" action="/api/logout"><button className="quiet" type="submit">Sign out</button></form>
         </div>
       </header>
       <main className="wrap">
         <p className="muted">The grid is filled from approved GitHub join requests. This page does not contact Cursor and does not wake agents. Agent-to-agent messages are not carried here yet.</p>
-        {view === "grid" ? (
+        {view === "claw3d" ? (
+          <section className="idea">
+            <p className="muted">Trial view. Claw3D is a separate MIT office you walk through. These people are its demo cast, not the ring. Nothing here wakes an agent or sends a message.</p>
+            <img src="/ideas/claw3d-hero.png" alt="Isometric Claw3D office with desks, people, and a playbook panel" />
+            <p>
+              <a href="https://github.com/iamlukethedev/claw3d">GitHub</a>
+              {" · "}
+              <a href="https://www.claw3d.ai/">claw3d.ai</a>
+            </p>
+            <p className="muted">Picture from iamlukethedev/claw3d. The live office needs its own gateway. This tab is here so we can decide if the look sticks.</p>
+          </section>
+        ) : view === "grid" ? (
           <table>
             <thead>
               <tr>
@@ -104,6 +116,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
                   <td>{agent.seconds_since}</td>
                   <td>{agent.last_active}</td>
                   <td><a href={agent.primary_objective_url} onClick={(event) => event.stopPropagation()}>definition</a></td>
+                  <td>{agent.department}</td>
                   <td>{agent.primary_category}</td>
                   <td>{agent.secondary_category}</td>
                   <td>{agent.talks_to.length} — {agent.talks_to.join(", ")}</td>
