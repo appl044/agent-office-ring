@@ -17,8 +17,8 @@ header.bar h1 { font-size: 18px; margin: 0; }
 .views { display: flex; gap: 8px; }
 .views a, button.quiet { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 8px 12px; border-radius: 8px; text-decoration: none; cursor: pointer; }
 button.quiet.active { border-color: var(--accent); }
-.idea { display: grid; gap: 12px; max-width: 980px; }
-.idea img { width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0c0e12; }
+.campus-floor { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.pod { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #171c27; }
 .org { display: grid; gap: 14px; }
 .org-summary { margin: 0; font-size: 18px; }
 .org-search { max-width: 420px; }

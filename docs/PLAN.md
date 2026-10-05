@@ -152,7 +152,7 @@ The product is an organization map for people and agents. A city-building game i
 
 What you open on a phone is a compact map: neighborhoods, then a person, then the last recorded task. Grid stays available for sorting. Office stays the flat floor plan. Claw3D stays a trial picture of someone else's isometric office. The new Org tab is the map.
 
-Claw3D (MIT, https://github.com/iamlukethedev/claw3d) is the closest existing office for an AI workforce. We use it as a reference and as the trial tab. We do not fork it into this app in this slice. three.ws (Apache-2.0) and pavlo91/talking-avatar (MIT) are references for a later talking face, not the app base. SkyOffice does not support mobile. WorkAdventure stays out on license grounds.
+Claw3D is a separate app. Its GitHub page is a file list, and running it would talk to its own gateway. This dashboard does not load Claw3D, does not link to claw3d.ai, and does not send the roster there. The Campus tab draws rooms from the people already on this page. three.ws and the talking-avatar repo stay references for a later face. SkyOffice does not support mobile. WorkAdventure stays out on license grounds.
 
 This slice ships the map from the people who already joined. It does not start voice, store conversation memory, assign work, or wake anyone. Talk, Message, and Assign are visible and say they are the next slice. Inspect opens the work URL they filed.
 

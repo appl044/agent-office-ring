@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Glyph } from "./Glyph";
 import { STATUS } from "../../lib/glyphs";
 import { OrgMap } from "./OrgMap";
+import { Campus } from "./Campus";
 
 function QueueList({ title, issues }) {
   return (
@@ -85,12 +86,12 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
           <button className={view === "org" ? "quiet active" : "quiet"} type="button" onClick={() => setView("org")}>Org</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
-          <button className={view === "claw3d" ? "quiet active" : "quiet"} type="button" onClick={() => setView("claw3d")}>Claw3D</button>
+          <button className={view === "campus" ? "quiet active" : "quiet"} type="button" onClick={() => setView("campus")}>Campus</button>
           <form method="post" action="/api/logout"><button className="quiet" type="submit">Sign out</button></form>
         </div>
       </header>
       <main className="wrap">
-        <p className="muted">The grid is filled from approved GitHub join requests. This page does not contact Cursor and does not wake agents. Agent-to-agent messages are not carried here yet.</p>
+        <p className="muted">The roster is read from your join issues. This page does not send that roster to Claw3D or any other office service. It does not contact Cursor and does not wake agents.</p>
         {view === "org" ? (
           <OrgMap
             agents={agents}
@@ -100,17 +101,14 @@ export function Board({ agents, issues, queueError, repoUrl }) {
               setActionNote("");
             }}
           />
-        ) : view === "claw3d" ? (
-          <section className="idea">
-            <p className="muted">Trial view. Claw3D is a separate MIT office you walk through. These people are its demo cast, not the ring. Nothing here wakes an agent or sends a message.</p>
-            <img src="/ideas/claw3d-hero.png" alt="Isometric Claw3D office with desks, people, and a playbook panel" />
-            <p>
-              <a href="https://github.com/iamlukethedev/claw3d">GitHub</a>
-              {" · "}
-              <a href="https://www.claw3d.ai/">claw3d.ai</a>
-            </p>
-            <p className="muted">Picture from iamlukethedev/claw3d. The live office needs its own gateway. This tab is here so we can decide if the look sticks.</p>
-          </section>
+        ) : view === "campus" ? (
+          <Campus
+            agents={agents}
+            onSelect={(agent) => {
+              setSelected(agent);
+              setActionNote("");
+            }}
+          />
         ) : view === "grid" ? (
           <table>
             <thead>
