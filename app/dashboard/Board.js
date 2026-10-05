@@ -98,7 +98,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
             <tbody>
               {rows.map((agent) => (
                 <tr className="clickable" key={agent.agent_id} onClick={() => setSelected(agent)}>
-                  <td>{agent.display_name}</td>
+                  <td>{agent.display_name}{agent.in_ring ? <div className="muted">In the ring</div> : <div className="muted">Not in the ring</div>}</td>
                   <td><span className="status"><Glyph status={agent.status} />{STATUS[agent.status] || agent.status}</span></td>
                   <td>{agent.seconds_since}</td>
                   <td>{agent.last_active}</td>
