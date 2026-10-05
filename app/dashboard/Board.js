@@ -6,6 +6,7 @@ import { STATUS } from "../../lib/glyphs";
 import { OrgMap } from "./OrgMap";
 import { Campus } from "./Campus";
 import { Stage } from "./Stage";
+import { Court } from "./Court";
 
 function QueueList({ title, issues }) {
   return (
@@ -86,6 +87,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         <div className="views">
           <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
           <button className={view === "org" ? "quiet active" : "quiet"} type="button" onClick={() => setView("org")}>Org</button>
+          <button className={view === "court" ? "quiet active" : "quiet"} type="button" onClick={() => setView("court")}>Court</button>
           <button className={view === "stage" ? "quiet active" : "quiet"} type="button" onClick={() => setView("stage")}>Stage</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
           <button className={view === "campus" ? "quiet active" : "quiet"} type="button" onClick={() => setView("campus")}>Campus</button>
@@ -99,6 +101,14 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
           <OrgMap
             agents={agents}
             waiting={issues.length}
+            onSelect={(agent) => {
+              setSelected(agent);
+              setActionNote("");
+            }}
+          />
+        ) : view === "court" ? (
+          <Court
+            agents={agents}
             onSelect={(agent) => {
               setSelected(agent);
               setActionNote("");
@@ -122,7 +132,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
           />
         ) : view === "claw" ? (
           <section className="claw-pane">
-            <p className="muted">This is the Claw3D service on this server, in demo mode. The people inside it are its demo cast. The ring roster is not sent there.</p>
+            <p className="muted">This is the Claw3D service on this server. It reads the ring names from a file on this machine. Nothing is sent to claw3d.ai. The open seating is the Court tab.</p>
             <iframe className="claw-frame" title="Claw3D office" src={clawUrl} />
           </section>
         ) : view === "grid" ? (

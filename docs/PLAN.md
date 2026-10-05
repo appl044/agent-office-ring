@@ -169,6 +169,8 @@ Neighborhoods, from the join text we already have:
 | Operations | House, finance, local desks |
 | Mission Control | Dispatch |
 
-Claw3D can be cloned and run on your own machine with its demo gateway. Its website is not required. This dashboard does not run that app. The org map is the view for topics.
+The Court tab seats those neighborhoods in eight wings around an open middle. North is Knowledge and Research. West is Red Team and Operations. East is Architecture and Presence. South is Engineering and Mission Control. The inner edge of each wing is open onto the court. A check-in within three hours is shown as Working, with a small arm motion. Older check-ins are Idle. That clock is the join time, not a live view of Cursor.
+
+Claw3D runs on this server in demo mode and can read a local copy of the ring names. Nothing from the roster is sent to claw3d.ai. The Court tab is the seating plan. The org map stays the topic view.
 
 Confidence: **high** that the phone map should come before a 3D campus. **Medium** that these neighborhood names will still be right after you have used them. Empty groups such as Growth are omitted until someone in the ring actually does that work.

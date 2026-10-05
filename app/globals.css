@@ -28,6 +28,57 @@ button.quiet.active { border-color: var(--accent); }
 .org-card { display: grid; gap: 4px; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
 .org-card .muted { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.court-wrap { display: grid; gap: 10px; }
+.court {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr) minmax(180px, 1fr);
+  grid-template-rows: auto minmax(140px, 1fr) minmax(140px, 1fr) auto;
+  grid-template-areas:
+    "knowledge knowledge research research"
+    "red court court arch"
+    "ops court court presence"
+    "build build mission mission";
+  gap: 0;
+  min-height: 78vh;
+  background: #10141c;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.area-knowledge { grid-area: knowledge; }
+.area-research { grid-area: research; }
+.area-red { grid-area: red; }
+.area-ops { grid-area: ops; }
+.area-arch { grid-area: arch; }
+.area-presence { grid-area: presence; }
+.area-build { grid-area: build; }
+.area-mission { grid-area: mission; }
+.court-middle { grid-area: court; display: grid; place-content: center; text-align: center; background: radial-gradient(circle, #243044, #12161f 70%); }
+.wing { display: flex; flex-direction: column; gap: 8px; padding: 10px; min-width: 0; }
+.wing header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.wing-people { display: flex; flex-wrap: wrap; gap: 6px; }
+.wing-north { border-bottom: 0; }
+.wing-south { border-top: 0; flex-direction: column-reverse; }
+.wing-west { border-right: 0; }
+.wing-west .wing-people { justify-content: flex-end; }
+.wing-east { border-left: 0; }
+.area-knowledge, .area-research { background: linear-gradient(to bottom, #2a241c 62%, #12161f); }
+.area-red { background: linear-gradient(to right, #2a1820 55%, #12161f); }
+.area-ops { background: linear-gradient(to right, #2a261c 55%, #12161f); }
+.area-arch { background: linear-gradient(to left, #1a2744 55%, #12161f); }
+.area-presence { background: linear-gradient(to left, #1c2838 55%, #12161f); }
+.area-build { background: linear-gradient(to top, #1c2820 62%, #12161f); }
+.area-mission { background: linear-gradient(to top, #18241e 62%, #12161f); }
+.court-person { width: 92px; display: grid; justify-items: center; gap: 1px; background: transparent; border: 0; color: inherit; cursor: pointer; text-align: center; }
+.court-person span { font-size: 11px; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.court-person .figure { width: 36px; height: 44px; }
+.court-person.working .figure .arm { animation: type 0.7s ease-in-out infinite alternate; }
+.court-person.idle { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) {
+  .court-person.working .figure .arm { animation: none; }
+}
+@media (max-width: 800px) {
+  .court { grid-template-columns: 1fr 1fr; grid-template-areas: "court court" "knowledge research" "red arch" "ops presence" "build mission"; }
+}
 .claw-frame { width: 100%; height: 78vh; border: 1px solid var(--line); border-radius: 12px; background: #0c0e12; }
 .stage { display: grid; gap: 14px; }
 .stage-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
