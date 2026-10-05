@@ -15,9 +15,14 @@ export default async function DashboardPage() {
   const queue = await listJoinIssues();
   const ring = await listRingMembers();
   const issues = queue.issues.map((issue) => ({ ...issue, review: classifyIssue(issue) }));
-  const byId = new Map(agents.map((agent) => [agent.agent_id, agent]));
+  const byId = new Map(agents.map((agent) => [agent.agent_id, { ...agent, department: agent.department || "Observed" }]));
   for (const member of ring.members) {
-    byId.set(member.agent_id, { ...(byId.get(member.agent_id) || {}), ...member, in_ring: true });
+    const existing = byId.get(member.agent_id);
+    if (existing && existing.join_issue && existing.join_issue !== member.join_issue) {
+      byId.set(`${member.agent_id}#${member.join_issue}`, { ...member, agent_id: `${member.agent_id}#${member.join_issue}`, in_ring: true });
+    } else {
+      byId.set(member.agent_id, { ...(existing || {}), ...member, in_ring: true });
+    }
   }
   const rows = [...byId.values()].map((agent) => ({
     ...agent,

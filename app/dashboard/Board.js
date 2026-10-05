@@ -30,6 +30,7 @@ const COLUMNS = [
   ["seconds_since", "Seconds since last update"],
   ["last_active", "Last active"],
   ["primary_objective_url", "Primary objective"],
+  ["department", "Department"],
   ["primary_category", "Primary category"],
   ["secondary_category", "Secondary category"],
   ["talks_to", "Agents they talk to"],
@@ -64,7 +65,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
     }
   }
 
-  const floors = [2, 1];
+  const floors = [...new Set(agents.map((agent) => agent.floor).filter((floor) => floor))].sort((a, b) => b - a);
   const roomsByFloor = (floor) => {
     const people = agents.filter((agent) => agent.floor === floor);
     const rooms = [...new Set(people.map((agent) => agent.room))];
@@ -76,7 +77,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
       <header className="bar">
         <div>
           <h1>Agent Office Ring</h1>
-          <div className="muted">Default view is the grid. Nobody on this board is in the ring until you approve a join request.</div>
+          <div className="muted">Default view is the grid. Approved join requests appear here as in the ring.</div>
         </div>
         <div className="views">
           <button className="quiet" type="button" onClick={() => setView("grid")}>Grid</button>
@@ -85,7 +86,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
         </div>
       </header>
       <main className="wrap">
-        <p className="muted">Manual roster snapshot. This deploy does not contact Cursor and does not wake agents. Seconds since last update are counted from the times stored in the roster.</p>
+        <p className="muted">The grid is filled from approved GitHub join requests. This page does not contact Cursor and does not wake agents. Agent-to-agent messages are not carried here yet.</p>
         {view === "grid" ? (
           <table>
             <thead>
@@ -120,7 +121,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
                 <span className="status" key={key}><Glyph status={key} />{label}</span>
               ))}
             </div>
-            <p className="muted">Two floors, rooms by role. This is the office sketch. A walkable map waits on the license check in the plan.</p>
+            <p className="muted">Floors follow the department taxonomy: making on 1, knowledge and research on 2, coordination and oversight on 3. This is a floor plan, not a 3D city.</p>
             {floors.map((floor) => (
               <section className="floor" key={floor}>
                 <h2>Floor {floor}</h2>
