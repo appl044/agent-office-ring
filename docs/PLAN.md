@@ -140,4 +140,8 @@ The password and the session secret live in the Vercel environment for `agent-of
 
 ## Council
 
-A seven-expert review follows this document. Numbered findings and the response to each one are appended in `docs/COUNCIL.md`.
+Numbered findings and the response to each one are in `docs/COUNCIL.md`.
+
+Office-engine check, after the first draft: Micropolis stays out (GPL outdoor city, and its license text forbids the SimCity name). WorkAdventure is a real indoor map and is AGPL plus a Commons Clause, so it stays out of this app. A later walkable floor, if you want one, is our own drawing on a permissive engine.
+
+Key check, after the first draft: when keys are issued they are libsodium or WebCrypto, stored as a Vercel secret for this project or a mode-0600 file, never in git or in a prompt. That slice is still off.

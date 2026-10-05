@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import agents from "../../data/agents.json";
 import { secondsSince } from "../../lib/glyphs";
-import { listJoinIssues } from "../../lib/queue";
+import { classifyIssue, listJoinIssues } from "../../lib/queue";
 import { verify } from "../../lib/session";
 import { Board } from "./Board";
 
@@ -13,6 +13,7 @@ export default async function DashboardPage() {
   const token = cookies().get("ring_session")?.value;
   if (!verify(token)) redirect("/login");
   const queue = await listJoinIssues();
+  const issues = queue.issues.map((issue) => ({ ...issue, review: classifyIssue(issue) }));
   const rows = agents.map((agent) => ({
     ...agent,
     seconds_since: secondsSince(agent.last_active),
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
   return (
     <Board
       agents={rows}
-      issues={queue.issues}
+      issues={issues}
       queueError={queue.ok ? "" : String(queue.status)}
       repoUrl={REPO_URL}
     />

@@ -4,6 +4,26 @@ import { useMemo, useState } from "react";
 import { Glyph } from "./Glyph";
 import { STATUS } from "../../lib/glyphs";
 
+function QueueList({ title, issues }) {
+  return (
+    <section>
+      <h3>{title}</h3>
+      <div className="queue">
+        {issues.length === 0 ? <p className="muted">None.</p> : issues.map((issue) => (
+          <article key={issue.number}>
+            <strong>{issue.review?.verdict === "valid" ? "Unreviewed" : "Held"} · #{issue.number} {issue.title}</strong>
+            <div className="muted">{issue.user} · updated {issue.updated_at}</div>
+            {issue.review?.errors?.length ? <p className="error">{issue.review.errors.join("; ")}</p> : <p>Scanner passed this snapshot. Read the issue again before you comment. If the body changed, refresh this page.</p>}
+            <pre>{issue.body}</pre>
+            <p><a href={`${issue.url}#issuecomment-new`}>Open the issue to approve or reject</a></p>
+            <p className="muted">Approval comment to paste: approve join {issue.number}. Rejection comment to paste: reject join {issue.number}.</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const COLUMNS = [
   ["display_name", "Agent"],
   ["status", "Status"],
@@ -23,8 +43,6 @@ export function Board({ agents, issues, queueError, repoUrl }) {
   const [sortKey, setSortKey] = useState("seconds_since");
   const [sortDir, setSortDir] = useState("asc");
   const [selected, setSelected] = useState(null);
-  const [draft, setDraft] = useState("");
-  const [comment, setComment] = useState("");
 
   const rows = useMemo(() => {
     const copy = [...agents];
@@ -67,6 +85,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
         </div>
       </header>
       <main className="wrap">
+        <p className="muted">Manual roster snapshot. This deploy does not contact Cursor and does not wake agents. Seconds since last update are counted from the times stored in the roster.</p>
         {view === "grid" ? (
           <table>
             <thead>
@@ -78,7 +97,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
             </thead>
             <tbody>
               {rows.map((agent) => (
-                <tr className="clickable" key={agent.agent_id} onClick={() => { setSelected(agent); setDraft(""); }}>
+                <tr className="clickable" key={agent.agent_id} onClick={() => setSelected(agent)}>
                   <td>{agent.display_name}</td>
                   <td><span className="status"><Glyph status={agent.status} />{STATUS[agent.status] || agent.status}</span></td>
                   <td>{agent.seconds_since}</td>
@@ -110,7 +129,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
                     <div className="room" key={room}>
                       <strong>{room}</strong>
                       {people.map((agent) => (
-                        <button className="person" type="button" key={agent.agent_id} onClick={() => { setSelected(agent); setDraft(""); }}>
+                        <button className="person" type="button" key={agent.agent_id} onClick={() => setSelected(agent)}>
                           <Glyph status={agent.status} />
                           <span>{agent.display_name}<br /><span className="muted">{STATUS[agent.status]}</span></span>
                         </button>
@@ -124,22 +143,10 @@ export function Board({ agents, issues, queueError, repoUrl }) {
         )}
 
         <h2>Join queue</h2>
-        <p className="muted">Open GitHub issues labeled join-request. Approve and reject on the issue so the comment stays in the custody trail. Keys are not issued from this screen.</p>
-        {queueError ? <p className="error">Queue read failed ({queueError}). The repository may still be private or the label has no issues yet.</p> : null}
-        <div className="queue">
-          {issues.length === 0 ? <p>No join requests yet.</p> : issues.map((issue) => (
-            <article key={issue.number}>
-              <strong>Unreviewed · #{issue.number} {issue.title}</strong>
-              <div className="muted">{issue.user} · {issue.created_at}</div>
-              <pre>{issue.body}</pre>
-              <label htmlFor={`comment-${issue.number}`}>Comment</label>
-              <textarea id={`comment-${issue.number}`} value={comment} onChange={(event) => setComment(event.target.value)} />
-              <p>
-                <a href={`${issue.url}#issuecomment-new`}>Open the issue to approve or reject</a>
-              </p>
-            </article>
-          ))}
-        </div>
+        <p className="muted">Open issues labeled join-request. A request is not approved until you comment on the GitHub issue and close it. Do not put health information in an issue. Keys are not issued here.</p>
+        {queueError ? <p className="error">Queue read failed ({queueError}).</p> : null}
+        <QueueList title="Ready for your review" issues={issues.filter((issue) => issue.review?.verdict === "valid")} />
+        <QueueList title="Do not approve" issues={issues.filter((issue) => issue.review?.verdict !== "valid")} />
         <p><a href={`${repoUrl}/blob/main/docs/JOIN.md`}>Join instructions for agents</a></p>
       </main>
       {selected ? (
@@ -151,9 +158,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <p><a href={selected.primary_objective_url}>Primary objective</a></p>
           <p>Typical task: {selected.typical_task}</p>
           <p>Previous task: {selected.previous_task}</p>
-          <label htmlFor="draft">Message draft</label>
-          <textarea id="draft" value={draft} onChange={(event) => setDraft(event.target.value)} />
-          <p className="muted">This draft stays in the browser. The dashboard does not wake the agent and does not send the text. Remote wake stays off until that path is proven separate from every other Vercel project.</p>
+          <p className="muted">Outbound messaging is not on. This panel does not send text and does not wake the agent.</p>
         </aside>
       ) : null}
     </>

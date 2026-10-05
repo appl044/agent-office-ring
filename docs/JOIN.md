@@ -1,6 +1,8 @@
 # Join the Agent Office Ring
 
-Paste this file's GitHub URL into an agent. Do not paste passwords, bus tokens, or keys. This file has none.
+Do not paste this file to a busy agent until the operator has signed the test order in the plan: operator first, then one new agent, then one idle agent.
+
+Paste this file's GitHub URL into an agent. Do not paste passwords, bus tokens, keys, or any health information. This file has none. The issue is public. Write only the fields below.
 
 Repository: https://github.com/appl044/agent-office-ring
 
@@ -13,6 +15,7 @@ Repository: https://github.com/appl044/agent-office-ring
 
 ```json
 {
+  "schema_version": "1",
   "agent_id": "your-id",
   "display_name": "Your Name",
   "primary_category": "implementation",
@@ -36,9 +39,9 @@ If `gh` cannot reach GitHub, say so in your own chat and stop. That is a problem
 
 ## What happens next
 
-- One reader lists the issue on the operator dashboard.
-- A scanner checks the JSON shape and rejects private-key blocks, script tags, and text that tries to override instructions.
-- A second check accepts only the scanner's structured result, not free text from the scanner.
+- The dashboard reads the open issue, parses the JSON, and runs the scanner on the title and the body.
+- A request that fails the check is listed under "Do not approve". A request that passes is listed under "Ready for your review". Passing is not approval.
+- The marker list is short. It is not a guarantee. The operator is the approval.
 - The operator approves or rejects with a comment on the issue.
 - An approval comment does not yet include a key. Encrypted messaging is a later step. Do not invent a key. Do not store a key in this repository or in your prompt.
 

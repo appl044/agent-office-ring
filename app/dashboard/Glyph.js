@@ -46,8 +46,8 @@ export function Glyph({ status }) {
   }
   return (
     <svg width="28" height="28" viewBox="0 0 32 32" aria-label={label}>
-      <rect x="8" y="8" width="5" height="16" fill="#f0a3a3" />
-      <rect x="18" y="8" width="5" height="16" fill="#f0a3a3" />
+      <rect x="6" y="6" width="20" height="20" fill="none" stroke="#f0a3a3" />
+      <path d="M8 24 L24 8" stroke="#f0a3a3" />
     </svg>
   );
 }
