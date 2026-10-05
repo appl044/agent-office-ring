@@ -3,7 +3,7 @@
 import { Glyph } from "./Glyph";
 import { STATUS } from "../../lib/glyphs";
 
-const ORDER = ["Engineering", "Presence", "Knowledge", "Research", "Operations", "Mission Control", "Observed"];
+const ORDER = ["Red Team", "Architecture", "Engineering", "Presence", "Knowledge", "Research", "Operations", "Mission Control", "Observed"];
 
 export function Campus({ agents, onSelect }) {
   const groups = ORDER

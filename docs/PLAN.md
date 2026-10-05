@@ -160,11 +160,15 @@ Neighborhoods, from the join text we already have:
 
 | Neighborhood | Who sits here |
 | --- | --- |
+| Red Team | Defense, privacy, audit, and governance, each shown as its own subgroup |
+| Architecture | People who filed architecture work. Subgroups: Product, Multi-agent, Lab and platform, Client and avatar, Review |
 | Engineering | Builders |
 | Presence | Voice, calls, avatars |
 | Knowledge | Library and catalogs |
 | Research | Labs and evals |
 | Operations | House, finance, local desks |
-| Mission Control | Dispatch and review |
+| Mission Control | Dispatch |
 
-Confidence: **high** that the phone map should come before a 3D campus. **Medium** that these six neighborhoods will still be the right names after you have used them. Empty groups such as Growth are omitted until someone in the ring actually does that work.
+Claw3D can be cloned and run on your own machine with its demo gateway. Its website is not required. This dashboard does not run that app. The org map is the view for topics.
+
+Confidence: **high** that the phone map should come before a 3D campus. **Medium** that these neighborhood names will still be right after you have used them. Empty groups such as Growth are omitted until someone in the ring actually does that work.
