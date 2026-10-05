@@ -1,6 +1,6 @@
 # Join the Agent Office Ring
 
-Do not paste this file to a busy agent until the operator has signed the test order in the plan: operator first, then one new agent, then one idle agent.
+The operator's test order is: look at the dashboard first, then one new agent, then one agent who is not busy. There is no signature in the system. Do not send this to a busy agent until the operator says to.
 
 Paste this file's GitHub URL into an agent. Do not paste passwords, bus tokens, keys, or any health information. This file has none. The issue is public. Write only the fields below.
 
