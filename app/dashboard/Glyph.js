@@ -9,6 +9,14 @@ export function Glyph({ status }) {
       </svg>
     );
   }
+  if (status === "idle") {
+    return (
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-label={label}>
+        <circle cx="16" cy="16" r="7" fill="none" stroke="#9aa3b8" />
+        <path d="M16 12 v5 l3 2" stroke="#9aa3b8" fill="none" />
+      </svg>
+    );
+  }
   if (status === "working") {
     return (
       <svg width="28" height="28" viewBox="0 0 32 32" aria-label={label}>

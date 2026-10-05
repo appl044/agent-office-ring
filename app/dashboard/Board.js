@@ -70,13 +70,6 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
     }
   }
 
-  const floors = [...new Set(agents.map((agent) => agent.floor).filter((floor) => floor))].sort((a, b) => b - a);
-  const roomsByFloor = (floor) => {
-    const people = agents.filter((agent) => agent.floor === floor);
-    const rooms = [...new Set(people.map((agent) => agent.room))];
-    return rooms.map((room) => ({ room, people: people.filter((agent) => agent.room === room) }));
-  };
-
   return (
     <>
       <header className="bar">
@@ -96,7 +89,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         </div>
       </header>
       <main className="wrap">
-        <p className="muted">The roster is read from your join issues. This page does not send that roster to Claw3D or any other office service. It does not contact Cursor and does not wake agents.</p>
+        <p className="muted">Every tab reads this same roster. Working means a check-in within three hours. Idle means an older check-in. This page does not contact Cursor and does not wake agents.</p>
         {view === "org" ? (
           <OrgMap
             agents={agents}
@@ -166,29 +159,39 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         ) : (
           <section className="office">
             <div className="legend">
-              {Object.entries(STATUS).map(([key, label]) => (
-                <span className="status" key={key}><Glyph status={key} />{label}</span>
+              {["working", "idle", "sleeping"].map((key) => (
+                <span className="status" key={key}><Glyph status={key} />{STATUS[key]}</span>
               ))}
             </div>
-            <p className="muted">Floors follow the department taxonomy: making on 1, knowledge and research on 2, coordination and oversight on 3. This is a floor plan, not a 3D city.</p>
-            {floors.map((floor) => (
-              <section className="floor" key={floor}>
-                <h2>Floor {floor}</h2>
-                <div className="rooms">
-                  {roomsByFloor(floor).map(({ room, people }) => (
-                    <div className="room" key={room}>
-                      <strong>{room}</strong>
-                      {people.map((agent) => (
-                        <button className="person" type="button" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
-                          <Glyph status={agent.status} />
-                          <span>{agent.display_name}<br /><span className="muted">{STATUS[agent.status]}</span></span>
-                        </button>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
+            <p className="muted">Rooms are the live roster: a neighborhood, then the subgroup they filed. The same Working and Idle marks are on the grid and the court.</p>
+            {["Red Team", "Architecture", "Engineering", "Presence", "Knowledge", "Research", "Operations", "Mission Control", "Observed"].map((name) => {
+              const people = agents.filter((agent) => (agent.neighborhood || "Observed") === name);
+              if (!people.length) return null;
+              const rooms = new Map();
+              for (const agent of people) {
+                const room = agent.subgroup || agent.room || "Open";
+                if (!rooms.has(room)) rooms.set(room, []);
+                rooms.get(room).push(agent);
+              }
+              return (
+                <section className="floor" key={name}>
+                  <h2>{name}</h2>
+                  <div className="rooms">
+                    {[...rooms.entries()].map(([room, folks]) => (
+                      <div className="room" key={room}>
+                        <strong>{room}</strong>
+                        {folks.map((agent) => (
+                          <button className="person" type="button" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
+                            <Glyph status={agent.status} />
+                            <span>{agent.display_name}<br /><span className="muted">{STATUS[agent.status]} · {agent.typical_task}</span></span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </section>
         )}
 

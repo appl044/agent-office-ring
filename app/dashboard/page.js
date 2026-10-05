@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import agents from "../../data/agents.json";
-import { secondsSince } from "../../lib/glyphs";
+import { presenceStatus, secondsSince } from "../../lib/glyphs";
 import { classifyIssue, listJoinIssues, listRingMembers } from "../../lib/queue";
 import { verify } from "../../lib/session";
 import { Board } from "./Board";
@@ -24,11 +24,15 @@ export default async function DashboardPage() {
       byId.set(member.agent_id, { ...(existing || {}), ...member, in_ring: true });
     }
   }
-  const rows = [...byId.values()].map((agent) => ({
-    ...agent,
-    seconds_since: secondsSince(agent.last_active),
-    primary_objective_url: agent.work_url || `${REPO_URL}/blob/main/${agent.primary_objective_path}`,
-  }));
+  const rows = [...byId.values()].map((agent) => {
+    const seconds_since = secondsSince(agent.last_active);
+    const seated = { ...agent, seconds_since };
+    return {
+      ...seated,
+      status: presenceStatus(seated),
+      primary_objective_url: agent.work_url || `${REPO_URL}/blob/main/${agent.primary_objective_path}`,
+    };
+  });
   return (
     <Board
       agents={rows}

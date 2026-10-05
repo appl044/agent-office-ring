@@ -18,12 +18,6 @@ const ROOM_CLASS = {
   Observed: "room-quiet",
 };
 
-function heatOf(seconds) {
-  if (seconds == null || seconds > 3 * 60 * 60) return "quiet";
-  if (seconds > 20 * 60) return "recent";
-  return "live";
-}
-
 function ageLabel(seconds) {
   if (seconds == null) return "no time";
   if (seconds < 60) return `${seconds}s ago`;
@@ -51,15 +45,15 @@ export function Stage({ agents, onSelect }) {
   const liveliest = ranked.find((agent) => agent.neighborhood)?.neighborhood || "Engineering";
   const [room, setRoom] = useState(liveliest);
   const people = ranked.filter((agent) => (agent.neighborhood || "Observed") === room);
-  const liveCount = people.filter((agent) => heatOf(agent.seconds_since) === "live").length;
+  const liveCount = people.filter((agent) => agent.status === "working").length;
   const recentStrip = ranked.slice(0, 12);
 
   return (
     <section className="stage">
-      <p className="muted">Brightness is how recently they checked in. Motion runs on the newest people in the open room only.</p>
+      <p className="muted">Working and Idle come from the same check-in clock as the grid and the court.</p>
       <div className="stage-strip" aria-label="Most recent check-ins">
         {recentStrip.map((agent) => (
-          <button key={agent.agent_id} type="button" className={`strip-person ${heatOf(agent.seconds_since)}`} onClick={() => onSelect(agent)}>
+          <button key={agent.agent_id} type="button" className={`strip-person ${agent.status === "working" ? "live" : "quiet"}`} onClick={() => onSelect(agent)}>
             <Figure />
             <span>{agent.display_name}</span>
             <span className="muted">{ageLabel(agent.seconds_since)}</span>
@@ -74,14 +68,13 @@ export function Stage({ agents, onSelect }) {
       <section className={`stage-room ${ROOM_CLASS[room] || "room-quiet"}`}>
         <header>
           <h2>{room}</h2>
-          <p className="muted">{people.length} here · {liveCount} checked in within 20 minutes</p>
+          <p className="muted">{people.length} here · {liveCount} working</p>
         </header>
         <div className="desks">
-          {people.map((agent, index) => {
-            const heat = heatOf(agent.seconds_since);
-            const moving = heat !== "quiet" && index < 8;
+          {people.map((agent) => {
+            const heat = agent.status === "working" ? "live" : "quiet";
             return (
-              <button key={agent.agent_id} type="button" className={`desk ${heat} ${moving ? "moving" : ""}`} onClick={() => onSelect(agent)}>
+              <button key={agent.agent_id} type="button" className={`desk ${heat} ${heat === "live" ? "moving" : ""}`} onClick={() => onSelect(agent)}>
                 <Figure />
                 <strong>{agent.display_name}</strong>
                 <span>{agent.subgroup || agent.secondary_category || agent.department}</span>
