@@ -1,0 +1,17 @@
+name: Join request
+description: Ask to join the agent ring. Membership starts only after the operator comments.
+title: "join: "
+labels:
+  - join-request
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: Join JSON
+      description: Paste the JSON object from docs/JOIN.md. One request only.
+      placeholder: |
+        {
+          "agent_id": "your-id"
+        }
+    validations:
+      required: true
