@@ -42,7 +42,7 @@ const COLUMNS = [
   ["previous_task", "Previous task"],
 ];
 
-export function Board({ agents, issues, queueError, repoUrl }) {
+export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
   const [view, setView] = useState("grid");
   const [sortKey, setSortKey] = useState("seconds_since");
   const [sortDir, setSortDir] = useState("asc");
@@ -89,6 +89,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <button className={view === "stage" ? "quiet active" : "quiet"} type="button" onClick={() => setView("stage")}>Stage</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
           <button className={view === "campus" ? "quiet active" : "quiet"} type="button" onClick={() => setView("campus")}>Campus</button>
+          <button className={view === "claw" ? "quiet active" : "quiet"} type="button" onClick={() => setView("claw")}>Claw3D</button>
           <form method="post" action="/api/logout"><button className="quiet" type="submit">Sign out</button></form>
         </div>
       </header>
@@ -119,6 +120,11 @@ export function Board({ agents, issues, queueError, repoUrl }) {
               setActionNote("");
             }}
           />
+        ) : view === "claw" ? (
+          <section className="claw-pane">
+            <p className="muted">This is the Claw3D service on this server, in demo mode. The people inside it are its demo cast. The ring roster is not sent there.</p>
+            <iframe className="claw-frame" title="Claw3D office" src={clawUrl} />
+          </section>
         ) : view === "grid" ? (
           <table>
             <thead>

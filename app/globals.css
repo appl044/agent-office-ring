@@ -28,6 +28,7 @@ button.quiet.active { border-color: var(--accent); }
 .org-card { display: grid; gap: 4px; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
 .org-card .muted { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.claw-frame { width: 100%; height: 78vh; border: 1px solid var(--line); border-radius: 12px; background: #0c0e12; }
 .stage { display: grid; gap: 14px; }
 .stage-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .strip-person, .desk { display: grid; justify-items: center; gap: 2px; text-align: center; background: transparent; border: 0; cursor: pointer; color: inherit; }

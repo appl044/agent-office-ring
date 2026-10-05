@@ -35,6 +35,7 @@ export default async function DashboardPage() {
       issues={issues}
       queueError={queue.ok ? "" : String(queue.status)}
       repoUrl={REPO_URL}
+      clawUrl={process.env.CLAW3D_PUBLIC_URL || "https://swing-replies-kelkoo-keeping.trycloudflare.com/office"}
     />
   );
 }
