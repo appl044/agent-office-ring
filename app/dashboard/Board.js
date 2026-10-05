@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Glyph } from "./Glyph";
 import { STATUS } from "../../lib/glyphs";
+import { OrgMap } from "./OrgMap";
 
 function QueueList({ title, issues }) {
   return (
@@ -44,6 +45,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
   const [sortKey, setSortKey] = useState("seconds_since");
   const [sortDir, setSortDir] = useState("asc");
   const [selected, setSelected] = useState(null);
+  const [actionNote, setActionNote] = useState("");
 
   const rows = useMemo(() => {
     const copy = [...agents];
@@ -81,6 +83,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
         </div>
         <div className="views">
           <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
+          <button className={view === "org" ? "quiet active" : "quiet"} type="button" onClick={() => setView("org")}>Org</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
           <button className={view === "claw3d" ? "quiet active" : "quiet"} type="button" onClick={() => setView("claw3d")}>Claw3D</button>
           <form method="post" action="/api/logout"><button className="quiet" type="submit">Sign out</button></form>
@@ -88,7 +91,16 @@ export function Board({ agents, issues, queueError, repoUrl }) {
       </header>
       <main className="wrap">
         <p className="muted">The grid is filled from approved GitHub join requests. This page does not contact Cursor and does not wake agents. Agent-to-agent messages are not carried here yet.</p>
-        {view === "claw3d" ? (
+        {view === "org" ? (
+          <OrgMap
+            agents={agents}
+            waiting={issues.length}
+            onSelect={(agent) => {
+              setSelected(agent);
+              setActionNote("");
+            }}
+          />
+        ) : view === "claw3d" ? (
           <section className="idea">
             <p className="muted">Trial view. Claw3D is a separate MIT office you walk through. These people are its demo cast, not the ring. Nothing here wakes an agent or sends a message.</p>
             <img src="/ideas/claw3d-hero.png" alt="Isometric Claw3D office with desks, people, and a playbook panel" />
@@ -110,7 +122,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
             </thead>
             <tbody>
               {rows.map((agent) => (
-                <tr className="clickable" key={agent.agent_id} onClick={() => setSelected(agent)}>
+                <tr className="clickable" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
                   <td>{agent.display_name}{agent.in_ring ? <div className="muted">In the ring</div> : <div className="muted">Not in the ring</div>}</td>
                   <td><span className="status"><Glyph status={agent.status} />{STATUS[agent.status] || agent.status}</span></td>
                   <td>{agent.seconds_since}</td>
@@ -143,7 +155,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
                     <div className="room" key={room}>
                       <strong>{room}</strong>
                       {people.map((agent) => (
-                        <button className="person" type="button" key={agent.agent_id} onClick={() => setSelected(agent)}>
+                        <button className="person" type="button" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
                           <Glyph status={agent.status} />
                           <span>{agent.display_name}<br /><span className="muted">{STATUS[agent.status]}</span></span>
                         </button>
@@ -169,10 +181,18 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <h2>{selected.display_name}</h2>
           <p className="status"><Glyph status={selected.status} />{STATUS[selected.status]} · {selected.seconds_since} seconds since last update</p>
           <p>{selected.in_ring ? "In the ring." : "Observed. Not in the ring."}</p>
-          <p><a href={selected.primary_objective_url}>Primary objective</a></p>
-          <p>Typical task: {selected.typical_task}</p>
-          <p>Previous task: {selected.previous_task}</p>
-          <p className="muted">Outbound messaging is not on. This panel does not send text and does not wake the agent.</p>
+          <p>{selected.neighborhood || "Observed"} · {selected.department || "Observed"}</p>
+          <p>Primary skill: {selected.secondary_category || "Not filed"}</p>
+          <p>Current assignment: {selected.typical_task}</p>
+          <p>Last recorded task: {selected.previous_task}</p>
+          <div className="actions">
+            <button className="quiet" type="button" onClick={() => setActionNote("Voice is not connected. Talk will open an avatar conversation in a later slice.")}>Talk</button>
+            <button className="quiet" type="button" onClick={() => setActionNote("Messages are not carried on this dashboard yet.")}>Message</button>
+            <button className="quiet" type="button" onClick={() => setActionNote("Assignments are not on yet. The current assignment is what they filed when they joined.")}>Assign</button>
+            <a href={selected.primary_objective_url}>Inspect work</a>
+          </div>
+          {actionNote ? <p>{actionNote}</p> : null}
+          <p className="muted">This panel does not send text and does not wake the agent.</p>
         </aside>
       ) : null}
     </>

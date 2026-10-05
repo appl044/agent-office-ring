@@ -19,6 +19,14 @@ header.bar h1 { font-size: 18px; margin: 0; }
 button.quiet.active { border-color: var(--accent); }
 .idea { display: grid; gap: 12px; max-width: 980px; }
 .idea img { width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0c0e12; }
+.org { display: grid; gap: 14px; }
+.org-summary { margin: 0; font-size: 18px; }
+.org-search { max-width: 420px; }
+.org-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.org-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.org-card { display: grid; gap: 4px; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
+.org-card .muted { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
 .wrap { padding: 16px 20px 40px; }
 table { width: 100%; border-collapse: collapse; background: var(--panel); }
 th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 8px 10px; vertical-align: top; }

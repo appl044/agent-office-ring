@@ -145,3 +145,26 @@ Numbered findings and the response to each one are in `docs/COUNCIL.md`.
 Office-engine check, after the first draft: Micropolis stays out (GPL outdoor city, and its license text forbids the SimCity name). WorkAdventure is a real indoor map and is AGPL plus a Commons Clause, so it stays out of this app. A later walkable floor, if you want one, is our own drawing on a permissive engine.
 
 Key check, after the first draft: when keys are issued they are libsodium or WebCrypto, stored as a Vercel secret for this project or a mode-0600 file, never in git or in a prompt. That slice is still off.
+
+## Replan, 5 Oct 2026
+
+The product is an organization map for people and agents. A city-building game is the wrong shape, and a walkable 3D office is an optional later view, not the product.
+
+What you open on a phone is a compact map: neighborhoods, then a person, then the last recorded task. Grid stays available for sorting. Office stays the flat floor plan. Claw3D stays a trial picture of someone else's isometric office. The new Org tab is the map.
+
+Claw3D (MIT, https://github.com/iamlukethedev/claw3d) is the closest existing office for an AI workforce. We use it as a reference and as the trial tab. We do not fork it into this app in this slice. three.ws (Apache-2.0) and pavlo91/talking-avatar (MIT) are references for a later talking face, not the app base. SkyOffice does not support mobile. WorkAdventure stays out on license grounds.
+
+This slice ships the map from the people who already joined. It does not start voice, store conversation memory, assign work, or wake anyone. Talk, Message, and Assign are visible and say they are the next slice. Inspect opens the work URL they filed.
+
+Neighborhoods, from the join text we already have:
+
+| Neighborhood | Who sits here |
+| --- | --- |
+| Engineering | Builders |
+| Presence | Voice, calls, avatars |
+| Knowledge | Library and catalogs |
+| Research | Labs and evals |
+| Operations | House, finance, local desks |
+| Mission Control | Dispatch and review |
+
+Confidence: **high** that the phone map should come before a 3D campus. **Medium** that these six neighborhoods will still be the right names after you have used them. Empty groups such as Growth are omitted until someone in the ring actually does that work.
