@@ -5,6 +5,7 @@ import { Glyph } from "./Glyph";
 import { STATUS } from "../../lib/glyphs";
 import { OrgMap } from "./OrgMap";
 import { Campus } from "./Campus";
+import { Stage } from "./Stage";
 
 function QueueList({ title, issues }) {
   return (
@@ -85,6 +86,7 @@ export function Board({ agents, issues, queueError, repoUrl }) {
         <div className="views">
           <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
           <button className={view === "org" ? "quiet active" : "quiet"} type="button" onClick={() => setView("org")}>Org</button>
+          <button className={view === "stage" ? "quiet active" : "quiet"} type="button" onClick={() => setView("stage")}>Stage</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
           <button className={view === "campus" ? "quiet active" : "quiet"} type="button" onClick={() => setView("campus")}>Campus</button>
           <form method="post" action="/api/logout"><button className="quiet" type="submit">Sign out</button></form>
@@ -96,6 +98,14 @@ export function Board({ agents, issues, queueError, repoUrl }) {
           <OrgMap
             agents={agents}
             waiting={issues.length}
+            onSelect={(agent) => {
+              setSelected(agent);
+              setActionNote("");
+            }}
+          />
+        ) : view === "stage" ? (
+          <Stage
+            agents={agents}
             onSelect={(agent) => {
               setSelected(agent);
               setActionNote("");
