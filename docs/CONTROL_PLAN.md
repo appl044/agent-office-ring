@@ -27,6 +27,7 @@ The original Cursor chat is the person. The dashboard does not create a second o
 | --- | --- | --- |
 | Identity | `cursor-thread: bc-...` on that person’s join issue | Cursor is still the record. The join issue stores which existing chat to use. |
 | Missing link | Do not send. Show that the original chat is not connected. | Creating `ring:{id}` was the failure. |
+| Local chat | `cursor-thread: local` on the join issue | Ask posts `operator:` on that issue. The dashboard does not invent a cloud agent. |
 | Dummy name | Reject any linked agent named `ring:` or `dummy:` | Those threads are empty. |
 | Ask | `mode: plan` on the linked `bc-` id | A reply in the original cloud chat. No file edits. |
 | Assign | `mode: agent` on the same id | Work stays in that chat. New branch. No push to `main`. |

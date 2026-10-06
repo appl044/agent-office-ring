@@ -5,6 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 const LIVE = new Set(["CREATING", "RUNNING", "ACTIVE"]);
 
 function plainStatus(record) {
+  if (record?.kind === "issue") {
+    const last = record.runs?.[0];
+    if (last?.role === "operator") return "Waiting";
+    if (last?.role === "agent") return "Finished";
+    return "Connected";
+  }
   const run = record?.runs?.[0]?.status;
   if (run === "CREATING" || run === "RUNNING" || record?.agent?.status === "ACTIVE") return "Working on it";
   if (run === "FINISHED") return "Finished";
@@ -30,11 +36,11 @@ export function Control({ agent }) {
   const [record, setRecord] = useState(null);
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}`);
+    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}&join_issue=${encodeURIComponent(agent.join_issue || "")}`);
     const body = await response.json();
     setRecord(body);
     return body;
-  }, [agent.agent_id]);
+  }, [agent.agent_id, agent.join_issue]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +55,10 @@ export function Control({ agent }) {
   }, [load]);
 
   const latest = record?.runs?.[0];
-  const running = LIVE.has(latest?.status) || record?.agent?.status === "ACTIVE";
+  const latestReply = record?.latestReply || record?.runs?.find((run) => run.role === "agent" && run.result)?.result || latest?.result;
+  const running = record?.kind === "issue"
+    ? latest?.role === "operator"
+    : LIVE.has(latest?.status) || record?.agent?.status === "ACTIVE";
 
   useEffect(() => {
     if (!running) return undefined;
@@ -73,12 +82,13 @@ export function Control({ agent }) {
           text,
           neighborhood: agent.neighborhood || "",
           typical_task: agent.typical_task || "",
+          join_issue: agent.join_issue || "",
           open_pull_request: openPr,
         }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Send failed");
-      setNote(action === "cancel" ? "Stop requested." : "Sent. This page will keep checking until the run finishes.");
+      setNote(action === "cancel" ? "Stop requested." : record?.kind === "issue" || body.kind === "issue" ? "Sent on the join issue. This page will show their reply when they comment." : "Sent. This page will keep checking until the run finishes.");
       if (action !== "cancel") setText("");
       await load();
     } catch (error) {
@@ -89,7 +99,7 @@ export function Control({ agent }) {
   }
 
   async function openArtifact(path) {
-    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}&artifact=${encodeURIComponent(path)}`);
+    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}&join_issue=${encodeURIComponent(agent.join_issue || "")}&artifact=${encodeURIComponent(path)}`);
     const body = await response.json();
     if (!response.ok || !body.url) {
       setNote(body.error || "Could not open that file.");
@@ -104,14 +114,15 @@ export function Control({ agent }) {
     <div className="control">
       <div className="now">
         <strong>{record ? plainStatus(record) : "Checking"}</strong>
-        {record?.agent?.url ? <a href={record.agent.url}>Open the original chat</a> : null}
+        {record?.agent?.url ? <a href={record.agent.url}>{record.kind === "issue" ? "Open the join thread" : "Open the original chat"}</a> : null}
       </div>
-      {record?.keyName ? <p className="muted">Connected with Cursor key {record.keyName}.</p> : null}
+      {record?.kind === "issue" ? <p className="muted">Connected. This chat is local. Ask posts on the join issue.</p> : null}
+      {record?.keyName && record?.kind !== "issue" ? <p className="muted">Connected with Cursor key {record.keyName}.</p> : null}
       {record?.configured === false ? <p className="error">Add CURSOR_API_KEY from Cursor Dashboard → API Keys.</p> : null}
       {record?.problem ? <p className="error">{record.problem}</p> : null}
       {record?.error ? <p className="error">{record.error}</p> : null}
       <h3>Latest reply</h3>
-      {latest?.result ? <div className="reply">{latest.result}</div> : <p className="muted">{running ? "Still working." : "No reply yet."}</p>}
+      {latestReply ? <div className="reply">{latestReply}</div> : <p className="muted">{running ? "Still working." : "No reply yet."}</p>}
       {latest?.durationMs ? <p className="muted">Last run took {duration(latest.durationMs)}.</p> : null}
       {branches.map((branch) => (
         <p key={`${branch.branch}-${branch.prUrl}`}>
@@ -136,11 +147,11 @@ export function Control({ agent }) {
       {record?.runs?.length ? (
         <ul className="history">
           {record.runs.map((run) => (
-            <li key={run.id}><strong>{plainStatus({ runs: [run] })}</strong> {run.createdAt}</li>
+            <li key={run.id}><strong>{run.role === "operator" ? "Asked" : run.role === "agent" ? "Replied" : plainStatus({ runs: [run] })}</strong> {run.createdAt}{run.text || run.result ? ` ${run.text || run.result}` : ""}</li>
           ))}
         </ul>
       ) : (
-        <p className="muted">No runs on the original chat yet. Ask sends a question into that chat. The dashboard does not open a new agent.</p>
+        <p className="muted">{record?.kind === "issue" ? "No questions on the join issue yet." : "No runs on the original chat yet. Ask sends a question into that chat. The dashboard does not open a new agent."}</p>
       )}
       <h3>Files</h3>
       {record?.artifacts?.length ? (

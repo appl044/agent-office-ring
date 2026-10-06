@@ -11,10 +11,11 @@ export async function GET(request) {
   const url = new URL(request.url);
   const agentId = url.searchParams.get("agent_id") || "";
   const artifact = url.searchParams.get("artifact") || "";
+  const joinIssue = url.searchParams.get("join_issue") || "";
   if (!agentId) return Response.json({ configured: cursorConfigured() });
   try {
-    if (artifact) return Response.json(await artifactLink(agentId, artifact));
-    return Response.json(await inspectCloud(agentId));
+    if (artifact) return Response.json(await artifactLink(agentId, artifact, joinIssue));
+    return Response.json(await inspectCloud(agentId, joinIssue));
   } catch (error) {
     return Response.json({ error: error.message }, { status: error.status || 502 });
   }
@@ -29,7 +30,7 @@ export async function POST(request) {
   }
   try {
     if (action === "cancel") {
-      return Response.json(await cancelCloud(String(body.agent_id || "")));
+      return Response.json(await cancelCloud(String(body.agent_id || ""), body.join_issue));
     }
     const result = await sendToCloud({
       action,
@@ -39,6 +40,7 @@ export async function POST(request) {
       neighborhood: String(body.neighborhood || ""),
       typicalTask: String(body.typical_task || ""),
       openPullRequest: body.open_pull_request === true,
+      joinIssue: body.join_issue,
     });
     return Response.json({ ok: true, ...result });
   } catch (error) {
