@@ -28,6 +28,8 @@ button.quiet.active { border-color: var(--accent); }
 .org-card { display: grid; gap: 4px; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
 .org-card .muted { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.control h3 { margin: 14px 0 6px; font-size: 15px; }
+.history { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .hq { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 16px; align-items: start; }
 .hq-directory { background: #16130f; color: #f6f1e8; border-radius: 18px; padding: 14px; display: grid; gap: 6px; position: sticky; top: 12px; }
 .hq-kicker { margin: 0; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8174; }

@@ -7,6 +7,7 @@ import { OrgMap } from "./OrgMap";
 import { Campus } from "./Campus";
 import { Stage } from "./Stage";
 import { Court } from "./Court";
+import { Control } from "./Control";
 
 function QueueList({ title, issues }) {
   return (
@@ -48,7 +49,6 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
   const [sortKey, setSortKey] = useState("seconds_since");
   const [sortDir, setSortDir] = useState("asc");
   const [selected, setSelected] = useState(null);
-  const [actionNote, setActionNote] = useState("");
 
   const rows = useMemo(() => {
     const copy = [...agents];
@@ -89,14 +89,13 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         </div>
       </header>
       <main className="wrap">
-        <p className="muted">Every tab reads this same roster. Working means a check-in within three hours. Idle means an older check-in. This page does not contact Cursor and does not wake agents.</p>
+        <p className="muted">Every tab reads this same roster. Working means a check-in within three hours. Idle means an older check-in. Talk, Message, and Assign on a person start a Cursor cloud run. They do not start a voice call.</p>
         {view === "org" ? (
           <OrgMap
             agents={agents}
             waiting={issues.length}
             onSelect={(agent) => {
               setSelected(agent);
-              setActionNote("");
             }}
           />
         ) : view === "court" ? (
@@ -104,7 +103,6 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
             agents={agents}
             onSelect={(agent) => {
               setSelected(agent);
-              setActionNote("");
             }}
           />
         ) : view === "stage" ? (
@@ -112,7 +110,6 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
             agents={agents}
             onSelect={(agent) => {
               setSelected(agent);
-              setActionNote("");
             }}
           />
         ) : view === "campus" ? (
@@ -120,12 +117,11 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
             agents={agents}
             onSelect={(agent) => {
               setSelected(agent);
-              setActionNote("");
             }}
           />
         ) : view === "claw" ? (
           <section className="claw-pane">
-            <p className="muted">This is the Claw3D service on this server. It reads the ring names from a file on this machine. Nothing is sent to claw3d.ai. The open seating is the Court tab.</p>
+            <p className="muted">This is the Claw3D service on this server. It reads the ring names from a file on this machine. Nothing is sent to claw3d.ai. The headquarters is the HQ tab.</p>
             <iframe className="claw-frame" title="Claw3D office" src={clawUrl} />
           </section>
         ) : view === "grid" ? (
@@ -139,7 +135,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
             </thead>
             <tbody>
               {rows.map((agent) => (
-                <tr className="clickable" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
+                <tr className="clickable" key={agent.agent_id} onClick={() => setSelected(agent)}>
                   <td>{agent.display_name}{agent.in_ring ? <div className="muted">In the ring</div> : <div className="muted">Not in the ring</div>}</td>
                   <td><span className="status"><Glyph status={agent.status} />{STATUS[agent.status] || agent.status}</span></td>
                   <td>{agent.seconds_since}</td>
@@ -181,7 +177,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
                       <div className="room" key={room}>
                         <strong>{room}</strong>
                         {folks.map((agent) => (
-                          <button className="person" type="button" key={agent.agent_id} onClick={() => { setSelected(agent); setActionNote(""); }}>
+                          <button className="person" type="button" key={agent.agent_id} onClick={() => setSelected(agent)}>
                             <Glyph status={agent.status} />
                             <span>{agent.display_name}<br /><span className="muted">{STATUS[agent.status]} · {agent.typical_task}</span></span>
                           </button>
@@ -212,14 +208,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
           <p>Primary skill: {selected.secondary_category || "Not filed"}</p>
           <p>Current assignment: {selected.typical_task}</p>
           <p>Last recorded task: {selected.previous_task}</p>
-          <div className="actions">
-            <button className="quiet" type="button" onClick={() => setActionNote("Voice is not connected. Talk will open an avatar conversation in a later slice.")}>Talk</button>
-            <button className="quiet" type="button" onClick={() => setActionNote("Messages are not carried on this dashboard yet.")}>Message</button>
-            <button className="quiet" type="button" onClick={() => setActionNote("Assignments are not on yet. The current assignment is what they filed when they joined.")}>Assign</button>
-            <a href={selected.primary_objective_url}>Inspect work</a>
-          </div>
-          {actionNote ? <p>{actionNote}</p> : null}
-          <p className="muted">This panel does not send text and does not wake the agent.</p>
+          <Control agent={selected} />
         </aside>
       ) : null}
     </>
