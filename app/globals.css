@@ -29,65 +29,55 @@ button.quiet.active { border-color: var(--accent); }
 .org-card .muted { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
 .court-wrap { display: grid; gap: 10px; }
-.court {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.8fr) minmax(140px, 0.8fr) minmax(180px, 1fr);
-  grid-template-rows: auto minmax(140px, 1fr) minmax(140px, 1fr) auto;
-  grid-template-areas:
-    "knowledge knowledge research research"
-    "red court court arch"
-    "ops court court presence"
-    "build build mission mission";
-  gap: 0;
-  min-height: 78vh;
-  background: #10141c;
-  border-radius: 16px;
-  overflow: hidden;
-}
-.area-knowledge { grid-area: knowledge; }
-.area-research { grid-area: research; }
-.area-red { grid-area: red; }
-.area-ops { grid-area: ops; }
-.area-arch { grid-area: arch; }
-.area-presence { grid-area: presence; }
-.area-build { grid-area: build; }
-.area-mission { grid-area: mission; }
-.court-middle { grid-area: court; display: grid; align-content: center; justify-items: center; text-align: center; background: radial-gradient(circle, #243044, #12161f 70%); padding: 12px; overflow: auto; }
-.wing { display: flex; flex-direction: column; gap: 8px; padding: 10px; min-width: 0; }
-.wing header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.wing-bays { display: flex; flex-direction: column; gap: 8px; }
-.bay h3 { margin: 0; font-size: 12px; color: var(--muted); font-weight: 600; }
-.wing-people { display: flex; flex-wrap: wrap; gap: 8px; }
-.court-live { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; text-align: left; max-width: 280px; }
-.court-live button { display: grid; gap: 1px; width: 100%; text-align: left; background: rgba(8, 10, 16, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 6px 8px; cursor: pointer; color: inherit; }
-.court-person .task { font-size: 10px; line-height: 1.3; max-width: 112px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; color: var(--text); }
-.wing-north { border-bottom: 0; }
-.wing-south { border-top: 0; flex-direction: column-reverse; }
-.wing-west { border-right: 0; }
-.wing-west .wing-people { justify-content: flex-end; }
-.wing-east { border-left: 0; }
-.area-knowledge, .area-research { background: linear-gradient(to bottom, #2a241c 62%, #12161f); }
-.area-red { background: linear-gradient(to right, #2a1820 55%, #12161f); }
-.area-ops { background: linear-gradient(to right, #2a261c 55%, #12161f); }
-.area-arch { background: linear-gradient(to left, #1a2744 55%, #12161f); }
-.area-presence { background: linear-gradient(to left, #1c2838 55%, #12161f); }
-.area-build { background: linear-gradient(to top, #1c2820 62%, #12161f); }
-.area-mission { background: linear-gradient(to top, #18241e 62%, #12161f); }
-.court-person { width: 120px; display: grid; justify-items: center; gap: 1px; background: linear-gradient(#1a2030, #10141c); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: inherit; cursor: pointer; text-align: center; padding: 6px 6px 8px; }
-.court-person strong, .court-person span { font-size: 11px; max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.court-person .figure { width: 36px; height: 44px; }
-.wing-north .court-person.working { box-shadow: inset 0 -3px 0 #7dcea0; }
-.wing-south .court-person.working { box-shadow: inset 0 3px 0 #7dcea0; }
-.wing-west .court-person.working { box-shadow: inset -3px 0 0 #7dcea0; }
-.wing-east .court-person.working { box-shadow: inset 3px 0 0 #7dcea0; }
+.plan-scroll { overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: #0c1016; }
+.floor-plan { width: 1760px; display: grid; gap: 0; padding: 18px; }
+.plan-row { display: grid; grid-template-columns: minmax(0, 1.3fr) 64px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.plan-middle { grid-template-columns: 380px 64px minmax(0, 1fr) 64px 420px; }
+.plan-south { grid-template-columns: minmax(0, 1.6fr) 64px 460px; }
+.plan-stack { display: grid; gap: 12px; align-content: start; }
+.amenity-row { grid-template-columns: 1fr 1fr; }
+.plan-room { border-radius: 14px; padding: 12px; min-height: 160px; display: grid; align-content: start; gap: 8px; }
+.plan-room header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.plan-room h3 { margin: 0; font-size: 12px; color: var(--muted); }
+.walk { display: flex; align-items: center; justify-content: center; color: #8b95a8; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 8px; }
+.walk-h { min-height: 48px; margin: 10px 0; background: repeating-linear-gradient(90deg, #161c28 0 16px, #222a3a 16px 18px); }
+.walk-v { min-width: 64px; writing-mode: vertical-rl; background: repeating-linear-gradient(#161c28 0 16px, #222a3a 16px 18px); }
+.room-desks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.desk-rows { display: grid; gap: 8px; }
+.aisle { height: 28px; margin: 4px 0; border-radius: 6px; background: repeating-linear-gradient(90deg, transparent 0 14px, rgba(255,255,255,0.08) 14px 16px); color: #8b95a8; font-size: 11px; display: flex; align-items: center; padding-left: 8px; }
+.bay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bay { background: rgba(0,0,0,0.22); border-radius: 10px; padding: 8px; min-height: 120px; }
+.video-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.video-room { background: rgba(0,0,0,0.28); border-radius: 10px; padding: 8px; display: grid; gap: 6px; }
+.screen { height: 36px; border-radius: 6px; background: linear-gradient(180deg, #8eb6ff, #243044); box-shadow: 0 0 18px rgba(142, 182, 255, 0.45); }
+.counter { height: 14px; border-radius: 8px; background: linear-gradient(90deg, #6b4a2a, #c4925a); }
+.counter-juice { background: linear-gradient(90deg, #2f6b3a, #d6e26a); }
+.table, .board-table { min-height: 36px; border-radius: 18px; background: #4a3424; color: #e7d7c4; display: grid; place-items: center; font-size: 12px; }
+.board-layout { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 10px; align-items: center; }
+.board-table { min-height: 160px; border-radius: 28px; }
+.empty-room { margin: 0; }
+.room-library { background: #2a241c; }
+.room-lab { background: #16302e; }
+.room-red { background: #2a1820; }
+.room-ops { background: #2a2618; }
+.room-coffee { background: #2c2218; }
+.room-juice { background: #1c2a18; }
+.room-plaza { background: #1a2230; min-height: 180px; }
+.room-meet { background: #22283a; }
+.room-arch { background: #1a2744; }
+.room-video-bank { background: #18283a; }
+.room-voice { background: #1c2838; }
+.room-build { background: #1c2820; }
+.room-board { background: #241c16; }
+.court-person { width: auto; min-height: 128px; display: grid; justify-items: center; align-content: start; gap: 1px; background: rgba(8, 10, 16, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: inherit; cursor: pointer; text-align: center; padding: 6px; }
+.court-person strong, .court-person span { font-size: 11px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.court-person .task { font-size: 10px; line-height: 1.3; max-width: 140px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; color: var(--text); }
+.court-person .figure { width: 32px; height: 40px; }
 .court-person.working .figure .arm { animation: type 0.7s ease-in-out infinite alternate; }
 .court-person.working .figure .head { fill: #f4f7ff; }
-.court-person.idle { opacity: 0.45; }
+.court-person.idle { opacity: 0.72; }
 @media (prefers-reduced-motion: reduce) {
   .court-person.working .figure .arm { animation: none; }
-}
-@media (max-width: 800px) {
-  .court { grid-template-columns: 1fr 1fr; grid-template-areas: "court court" "knowledge research" "red arch" "ops presence" "build mission"; }
 }
 .claw-frame { width: 100%; height: 78vh; border: 1px solid var(--line); border-radius: 12px; background: #0c0e12; }
 .stage { display: grid; gap: 14px; }
