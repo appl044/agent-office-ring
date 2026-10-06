@@ -1,6 +1,6 @@
 # Agent Office Ring — plan
 
-**Status:** first operating plan, 4 Oct 2026.
+**Status:** first operating plan, 4 Oct 2026. Talking to people is in `docs/CONTROL_PLAN.md` (6 Oct 2026). Sentences below that say the site does not contact Cursor, or that five observed people stay on the grid, are out of date.
 **Operator:** Michael Canavan.
 **Lead:** this Cursor session. Other models research and review. They do not replace the lead.
 **This repository is new.** It does not deploy into `dashboard`, `rg-bus`, `multi-agent-room`, `muse-*`, `regina-companion`, or any other existing Vercel project.

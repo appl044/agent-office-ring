@@ -1,40 +1,65 @@
-# Control plan, 5 Oct 2026
+# Control plan, 6 Oct 2026
 
-This is the plan for the person panel. The reference cookbook is `docs/CURSOR_CLOUD_COOKBOOK.md`. The panel already starts a Cursor cloud run. This update makes that panel readable and uses more of the documented API.
+This is the current plan for talking to people on the dashboard. The API reference is `docs/CURSOR_CLOUD_COOKBOOK.md`. Older sentences in `docs/PLAN.md` that say the site does not contact Cursor, or that Ask creates `ring:{id}`, are out of date.
 
-## What the cookbook changes
+## What is true now
 
-The v1 API keeps one durable agent and starts a new run for every follow-up. The panel already does that: the first send creates `ring:{agent id}`, and the next send calls `POST /v1/agents/{id}/runs`.
+The live site is https://agent-office-ring.vercel.app. The roster is the 81 approved join issues. Cloud Orchestrator, Dashboard Manager, and Cloud Wake Proof are not on the page. They never joined.
 
-An idle agent is not a success. The panel now leads with the latest run status, not the agent status alone.
+The grid is the default view. Org, HQ, Stage, Office, Campus, and Claw3D stay. HQ seats each person on their home floor. Coffee and juice take at most four idle visitors each. Working is a check-in inside three hours.
 
-A follow-up while a run is creating or running returns `409 agent_busy`. The panel shows that in plain language and offers Stop, which cancels the run. Cancellation ends that run. The next Ask or Assign starts a new run on the same agent.
+Ask and Assign use the Cursor Cloud Agents API from the Next.js server. The key stays on the server. The browser never sees it.
 
-`git` on a run is the agent's current branches and pull requests, not a private record of that one run. The panel shows those links and does not pretend each old run has its own pull request.
+The first Ask used to create a new cloud agent named `ring:{id}` on this repo. That produced empty threads. Atlas’s questions went to https://cursor.com/agents/bc-bd5f7cc6-08bb-4ea0-a946-c0c8c40dd6a6, not the chat they already had. Those two dummy agents are archived:
 
-## Decisions
+- `ring:atlas-librarian` — `bc-bd5f7cc6-08bb-4ea0-a946-c0c8c40dd6a6`
+- `ring:cursor-cloud-wake-proof` — `bc-98f61052-c9a1-431f-b540-89e597be2126`
+
+Comments on the join issue do not reach a local Cursor window. Issues 1, 2, 3, 4, and 9 have operator comments only. No `ring-link:` comment exists. Opening a person still says the original chat is not connected.
+
+A local Cursor chat has no id this key can write to. A cloud chat on this account, with a `bc-` id, does.
+
+## Decision
+
+The original Cursor chat is the person. The dashboard does not create a second one.
 
 | Need | Choice | Why |
 | --- | --- | --- |
-| Controller | REST v1 from the Next.js server | This app runs on Node 20. `@cursor/sdk` asks for Node 22.13. REST is the cookbook's path for a service. |
-| Identity | Cursor agent name `ring:{agent id}` | There is no database. Cursor is the record. |
-| Ask | `mode: plan`, no file edits | A reply. Same thread if the agent already exists. |
-| Assign work | `mode: agent`, new branch | This is the run that may change code. It does not push to `main`. |
-| Pull request | Off unless the operator checks the box | `autoCreatePR` only when they ask for a pull request. `workOnCurrentBranch` stays false. |
-| Progress | Poll the run every few seconds | A long SSE stream does not fit a short serverless request. Polling is the production form of cookbook recipe E. |
-| Stop | `POST /v1/agents/{id}/runs/{runId}/cancel` | Documented. Does not resume the cancelled run. |
-| Files | List artifacts, then a 15-minute download link | The API key stays on the server. The browser only receives the temporary file URL. |
-| Account | `GET /v1/me`, show the key name | Confirms which Cursor key is connected. The key itself is not shown. |
-| Voice, Slack, Linear, self-hosted pools | Not this update | They are other entry points in the cookbook. They do not make the person panel clearer. |
-| Completion webhooks | Later | The cookbook says v1 completion webhooks are not ready. |
-| Busy queue | Later | Needs a store. Until then the panel tells you to wait or stop. |
+| Identity | `cursor-thread: bc-...` on that person’s join issue | Cursor is still the record. The join issue stores which existing chat to use. |
+| Missing link | Do not send. Show that the original chat is not connected. | Creating `ring:{id}` was the failure. |
+| Dummy name | Reject any linked agent named `ring:` or `dummy:` | Those threads are empty. |
+| Ask | `mode: plan` on the linked `bc-` id | A reply in the original cloud chat. No file edits. |
+| Assign | `mode: agent` on the same id | Work stays in that chat. New branch. No push to `main`. |
+| Pull request | Off unless the operator checks the box | Same as before. |
+| Progress | Poll the run | Serverless cannot hold SSE. |
+| Stop | Cancel the current run on that id | Documented. Does not resume. |
+| History and files | Runs, artifacts, and usage on that id | The panel shows the original chat, not a dummy. |
+| GitHub comments as the mailbox | Not the path unless the five windows have no `bc-` id | A comment cannot wake a local chat. |
+| Five first | Issues 9, 1, 2, 3, 4 | Atlas, Push-Pull Judge, Knowledge Muse Architect, Incident Researcher, Campaign Coach. |
 
-## What you see
+## How a person gets connected
 
-Open a person. The panel says what is happening now, shows the last reply, and lets you ask a question or assign work. If a run is going, it keeps checking. When a branch or pull request exists, the link is on the panel. Files they produced are listed. Token use is one line, not the main story.
+1. Paste one prompt into that person’s older Cursor window. Not into a `ring:` tab.
+2. That window posts a comment on its own join issue. The comment starts with `ring-link:` and includes `cursor-thread: bc-...` or `cursor-thread: local`.
+3. The dashboard reads that line. Ask, Assign, Stop, the latest reply, earlier runs, and files all use that `bc-` id.
+4. `local` means that window cannot receive Ask. Do not invent a new agent to paper over it.
 
-Campus and the grid stay as they are.
+Do not send that paste to the other 76 until one of the five has a real `bc-` id and Ask on that row replies in the original chat.
+
+## Next work, in order
+
+1. Get `ring-link` comments from the five older windows.
+2. Prove Ask, history, and the original-chat link on one of those five. Assign only if you want work on that same thread.
+3. Show connection on the row: connected, waiting on a `bc-` id, or dummy rejected. Never link an archived `ring:` agent.
+4. After one proof, use the same comment text for the rest of the ring. One prompt. The agent fills its own id.
+5. Keep the archived `ring:` agents until the five original chats are proven. Archive is the mark. Delete them later.
 
 ## Held
 
-Do not start the whole ring from one button. Do not push to `main`. Do not put the API key in the browser or in git.
+- Do not start the whole ring from one button.
+- Do not push to `main`.
+- Do not put the API key in the browser or in git.
+- Do not add a GitHub write token for issue mail unless the five windows have no `bc-` id.
+- Do not copy Zoom recordings until the operator picks a path.
+- Do not restart Wiki, Nginx, Perplexica, LibreChat, Neo4j, Postfix, the July dashboard, or start a second tunnel.
+- Voice, Slack, Linear, completion webhooks, and a busy queue stay later.
