@@ -104,10 +104,11 @@ export function Control({ agent }) {
     <div className="control">
       <div className="now">
         <strong>{record ? plainStatus(record) : "Checking"}</strong>
-        {record?.agent?.url ? <a href={record.agent.url}>Open in Cursor</a> : null}
+        {record?.agent?.url ? <a href={record.agent.url}>Open the original chat</a> : null}
       </div>
       {record?.keyName ? <p className="muted">Connected with Cursor key {record.keyName}.</p> : null}
       {record?.configured === false ? <p className="error">Add CURSOR_API_KEY from Cursor Dashboard → API Keys.</p> : null}
+      {record?.problem ? <p className="error">{record.problem}</p> : null}
       {record?.error ? <p className="error">{record.error}</p> : null}
       <h3>Latest reply</h3>
       {latest?.result ? <div className="reply">{latest.result}</div> : <p className="muted">{running ? "Still working." : "No reply yet."}</p>}
@@ -139,7 +140,7 @@ export function Control({ agent }) {
           ))}
         </ul>
       ) : (
-        <p className="muted">Nothing sent yet. Ask starts a reply. Assign work can change a new branch.</p>
+        <p className="muted">No runs on the original chat yet. Ask sends a question into that chat. The dashboard does not open a new agent.</p>
       )}
       <h3>Files</h3>
       {record?.artifacts?.length ? (
