@@ -80,7 +80,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         <div className="views">
           <button className={view === "grid" ? "quiet active" : "quiet"} type="button" onClick={() => setView("grid")}>Grid</button>
           <button className={view === "org" ? "quiet active" : "quiet"} type="button" onClick={() => setView("org")}>Org</button>
-          <button className={view === "court" ? "quiet active" : "quiet"} type="button" onClick={() => setView("court")}>Court</button>
+          <button className={view === "court" ? "quiet active" : "quiet"} type="button" onClick={() => setView("court")}>HQ</button>
           <button className={view === "stage" ? "quiet active" : "quiet"} type="button" onClick={() => setView("stage")}>Stage</button>
           <button className={view === "office" ? "quiet active" : "quiet"} type="button" onClick={() => setView("office")}>Office</button>
           <button className={view === "campus" ? "quiet active" : "quiet"} type="button" onClick={() => setView("campus")}>Campus</button>

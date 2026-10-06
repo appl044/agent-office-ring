@@ -1,77 +1,73 @@
 "use client";
 
-import { Glyph } from "./Glyph";
+import { useState } from "react";
 import { STATUS } from "../../lib/glyphs";
 
-const RED_BAYS = ["Defense", "Privacy", "Audit", "Governance"];
+const FLOORS = [
+  { id: "board", level: 8, name: "Board", blurb: "Mission Control resides around the table. This is where direction happens." },
+  { id: "red", level: 7, name: "Red Team", blurb: "Four rooms. Defense, privacy, audit, and governance each have their own door." },
+  { id: "architecture", level: 6, name: "Architecture", blurb: "Studios for the work, and a meeting room where review happens." },
+  { id: "presence", level: 5, name: "Presence", blurb: "Video rooms are where calls happen. The other desks are where people reside." },
+  { id: "research", level: 4, name: "Research", blurb: "Labs. The work happens at the benches." },
+  { id: "knowledge", level: 3, name: "Knowledge", blurb: "The library. People reside in the stacks." },
+  { id: "engineering", level: 2, name: "Engineering", blurb: "Two wings off the boulevard. This is where the build resides." },
+  { id: "lobby", level: 1, name: "Lobby", blurb: "Arrival and gathering. Coffee, juice, the plaza, and the front desk." },
+];
+
+const RED_ROOMS = ["Defense", "Privacy", "Audit", "Governance"];
 
 function byRecent(list) {
   return [...list].sort((a, b) => (a.seconds_since ?? 1e12) - (b.seconds_since ?? 1e12));
 }
 
-function layOutFloor(agents) {
-  const ring = agents.filter((agent) => agent.in_ring && agent.neighborhood && agent.neighborhood !== "Observed");
-  const idle = byRecent(ring.filter((agent) => agent.status === "idle"));
-  const coffee = idle.slice(0, 4);
-  const juice = idle.slice(4, 8);
-  const gather = idle.slice(8, 12);
-  const parked = new Set([...coffee, ...juice, ...gather].map((agent) => agent.agent_id));
-  const wing = (name) => byRecent(ring.filter((agent) => agent.neighborhood === name && !parked.has(agent.agent_id)));
+function ringOf(agents) {
+  return agents.filter((agent) => agent.in_ring && agent.neighborhood && agent.neighborhood !== "Observed");
+}
 
-  const pullNewest = (name) => {
-    const people = wing(name);
-    const newest = people.find((agent) => agent.status === "working");
-    return { person: newest || null, rest: newest ? people.filter((agent) => agent.agent_id !== newest.agent_id) : people };
-  };
+function homeOf(agent) {
+  if (agent.neighborhood === "Mission Control") return "board";
+  if (agent.neighborhood === "Red Team") return "red";
+  if (agent.neighborhood === "Architecture") return "architecture";
+  if (agent.neighborhood === "Presence") return "presence";
+  if (agent.neighborhood === "Research") return "research";
+  if (agent.neighborhood === "Knowledge") return "knowledge";
+  if (agent.neighborhood === "Engineering") return "engineering";
+  return "lobby";
+}
 
-  const engineering = pullNewest("Engineering");
-  const knowledge = pullNewest("Knowledge");
-  const research = pullNewest("Research");
-  const red = pullNewest("Red Team");
-  const standup = [engineering.person, knowledge.person, research.person, red.person].filter(Boolean);
-
-  const presence = wing("Presence");
-  const videos = [presence.slice(0, 2), presence.slice(2, 4), presence.slice(4, 6)];
-  const presenceDesks = presence.slice(6);
-
-  const architecture = wing("Architecture");
-  const reviewers = architecture.filter((agent) => agent.subgroup === "Review");
-  let meeting = reviewers;
-  let studios = architecture.filter((agent) => agent.subgroup !== "Review");
-  if (meeting.length === 0) {
-    meeting = studios.slice(0, 3);
-    studios = studios.slice(3);
-  }
-
-  const redPeople = red.rest;
-  const redBays = RED_BAYS.map((label) => ({
-    label,
-    people: redPeople.filter((agent) => agent.subgroup === label),
-  }));
-
+function splitResidence(people) {
+  const working = byRecent(people.filter((agent) => agent.status === "working"));
+  const walkerCount = working.length > 2 ? 2 : working.length > 1 ? 1 : 0;
   return {
-    library: knowledge.rest,
-    lab: research.rest,
-    redBays,
-    operations: wing("Operations"),
-    coffee,
-    juice,
-    gather,
-    standup,
-    meeting,
-    studios,
-    videos,
-    presenceDesks,
-    build: engineering.rest,
-    board: wing("Mission Control"),
+    walkers: working.slice(0, walkerCount),
+    residing: working.slice(walkerCount),
   };
 }
 
-function ageLabel(seconds) {
-  if (seconds == null) return "";
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  return `${Math.floor(seconds / 3600)}h`;
+function layOut(agents) {
+  const ring = ringOf(agents);
+  const idle = byRecent(ring.filter((agent) => agent.status !== "working" && agent.neighborhood !== "Operations"));
+  const homes = {};
+  for (const floor of FLOORS) homes[floor.id] = [];
+  for (const agent of ring) {
+    if (agent.status !== "working") continue;
+    if (agent.neighborhood === "Operations") continue;
+    homes[homeOf(agent)].push(agent);
+  }
+  const floors = {};
+  for (const floor of FLOORS) {
+    if (floor.id === "lobby") continue;
+    floors[floor.id] = splitResidence(homes[floor.id]);
+  }
+  return {
+    floors,
+    lobby: {
+      desk: byRecent(ring.filter((agent) => agent.neighborhood === "Operations")),
+      coffee: idle.slice(0, 5),
+      juice: idle.slice(5, 10),
+      plaza: idle.slice(10),
+    },
+  };
 }
 
 function Figure() {
@@ -85,163 +81,259 @@ function Figure() {
   );
 }
 
-function Person({ agent, onSelect, activity }) {
-  const active = agent.status === "working";
+function Resident({ agent, onSelect, activity }) {
   return (
-    <button type="button" className={active ? "court-person working" : "court-person idle"} onClick={() => onSelect(agent)}>
+    <button type="button" className={agent.status === "working" ? "hq-person working" : "hq-person"} onClick={() => onSelect(agent)}>
       <Figure />
       <strong>{agent.display_name}</strong>
-      <span className="muted">{agent.neighborhood}{agent.subgroup ? ` · ${agent.subgroup}` : ""}</span>
-      <span className="task">{activity}</span>
-      <span className="status"><Glyph status={agent.status} />{STATUS[agent.status] || agent.status} · {ageLabel(agent.seconds_since)}</span>
+      <span>{activity}</span>
+      <span className="hq-quiet">{agent.subgroup || STATUS[agent.status] || agent.status}</span>
     </button>
   );
 }
 
-function DeskGrid({ people, onSelect, activityFor, aisleEvery = 0 }) {
-  if (!people.length) return <p className="muted empty-room">Open</p>;
-  const rows = [];
-  const size = aisleEvery > 0 ? aisleEvery : people.length;
-  for (let index = 0; index < people.length; index += size) rows.push(people.slice(index, index + size));
+function SeatGrid({ people, onSelect, activityFor }) {
+  if (!people.length) return <p className="hq-quiet">Open</p>;
   return (
-    <div className="desk-rows">
-      {rows.map((row, index) => (
-        <div key={row[0].agent_id}>
-          <div className="room-desks">
-            {row.map((agent) => (
-              <Person key={agent.agent_id} agent={agent} onSelect={onSelect} activity={activityFor(agent)} />
-            ))}
-          </div>
-          {aisleEvery > 0 && index < rows.length - 1 ? <div className="aisle">Aisle</div> : null}
-        </div>
+    <div className="hq-seats">
+      {people.map((agent) => (
+        <Resident key={agent.agent_id} agent={agent} onSelect={onSelect} activity={activityFor(agent)} />
       ))}
     </div>
   );
 }
 
-function Room({ title, note, className, children }) {
+function Boulevard({ walkers, onSelect }) {
   return (
-    <section className={`plan-room ${className || ""}`}>
+    <div className="hq-boulevard" aria-label="Boulevard">
+      <span className="hq-boulevard-label">Boulevard</span>
+      {walkers.length === 0 ? <span className="hq-quiet">Walkway clear</span> : null}
+      {walkers.map((agent, index) => (
+        <button
+          key={agent.agent_id}
+          type="button"
+          className={index === 0 ? "hq-walker fast" : "hq-walker"}
+          style={{ animationDelay: `${index * -1.4}s` }}
+          onClick={() => onSelect(agent)}
+        >
+          <Figure />
+          <span>
+            <strong>{agent.display_name}</strong>
+            <em>{index === 0 ? "Fast walk" : "Walking"}</em>
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Room({ title, note, children, wide }) {
+  return (
+    <section className={wide ? "hq-room wide" : "hq-room"}>
       <header>
         <strong>{title}</strong>
-        {note ? <span className="muted">{note}</span> : null}
+        {note ? <span>{note}</span> : null}
       </header>
       {children}
     </section>
   );
 }
 
-function Walk({ kind, label }) {
-  return <div className={kind === "v" ? "walk walk-v" : "walk walk-h"}>{label}</div>;
+function WorkFloor({ title, blurb, plan, onSelect, children }) {
+  return (
+    <div className="hq-plate">
+      <header className="hq-plate-head">
+        <div>
+          <p className="hq-kicker">Floor {title.level}</p>
+          <h2>{title.name}</h2>
+        </div>
+        <p>{blurb}</p>
+      </header>
+      <Boulevard walkers={plan.walkers} onSelect={onSelect} />
+      {children}
+    </div>
+  );
 }
 
 export function Court({ agents, onSelect }) {
-  const floor = layOutFloor(agents);
+  const layout = layOut(agents);
+  const [floorId, setFloorId] = useState("lobby");
+  const index = Math.max(0, FLOORS.findIndex((floor) => floor.id === floorId));
+  const floor = FLOORS[index];
   const task = (agent) => agent.typical_task || "At a desk";
 
-  return (
-    <section className="court-wrap">
-      <p className="muted">A wide floor from the live roster. Work rooms keep people at their own desks. Idle people are at the coffee bar, the juice bar, or the plaza. Walkways stay open.</p>
-      <div className="plan-scroll">
-        <div className="floor-plan">
-          <div className="plan-row">
-            <Room className="room-library" title="Library" note={`${floor.library.length} at desks`}>
-              <DeskGrid people={floor.library} onSelect={onSelect} activityFor={task} aisleEvery={4} />
-            </Room>
-            <Walk kind="v" label="North walk" />
-            <Room className="room-lab" title="Lab" note={`${floor.lab.length} at benches`}>
-              <DeskGrid people={floor.lab} onSelect={onSelect} activityFor={task} aisleEvery={4} />
-            </Room>
+  function step(direction) {
+    const next = (index + direction + FLOORS.length) % FLOORS.length;
+    setFloorId(FLOORS[next].id);
+  }
+
+  function countFor(id) {
+    if (id === "lobby") {
+      const lobby = layout.lobby;
+      return lobby.desk.length + lobby.coffee.length + lobby.juice.length + lobby.plaza.length;
+    }
+    const plan = layout.floors[id];
+    return plan.walkers.length + plan.residing.length;
+  }
+
+  let body = null;
+  if (floor.id === "lobby") {
+    const lobby = layout.lobby;
+    body = (
+      <div className="hq-plate">
+        <header className="hq-plate-head">
+          <div>
+            <p className="hq-kicker">Floor 1</p>
+            <h2>Lobby</h2>
           </div>
-
-          <Walk kind="h" label="East–west walkway" />
-
-          <div className="plan-row plan-middle">
-            <div className="plan-stack">
-              <Room className="room-red" title="Red Team" note="Four rooms">
-                <div className="bay-grid">
-                  {floor.redBays.map((bay) => (
-                    <div className="bay" key={bay.label}>
-                      <h3>{bay.label}</h3>
-                      <DeskGrid people={bay.people} onSelect={onSelect} activityFor={task} />
-                    </div>
-                  ))}
-                </div>
-              </Room>
-              <Room className="room-ops" title="Front desk" note="Operations">
-                <DeskGrid people={floor.operations} onSelect={onSelect} activityFor={task} />
-              </Room>
-            </div>
-
-            <Walk kind="v" label="West walk" />
-
-            <div className="plan-stack plaza">
-              <div className="plan-row amenity-row">
-                <Room className="room-coffee" title="Coffee bar" note="Idle">
-                  <div className="counter" />
-                  <DeskGrid people={floor.coffee} onSelect={onSelect} activityFor={() => "At the coffee bar"} />
-                </Room>
-                <Room className="room-juice" title="Juice bar" note="Idle">
-                  <div className="counter counter-juice" />
-                  <DeskGrid people={floor.juice} onSelect={onSelect} activityFor={() => "At the juice bar"} />
-                </Room>
-              </div>
-              <Room className="room-plaza" title="Plaza" note="Gathering, kept open">
-                <DeskGrid people={floor.gather} onSelect={onSelect} activityFor={() => "In the plaza"} />
-              </Room>
-              <div className="plan-row amenity-row">
-                <Room className="room-meet" title="Meeting room" note="Architecture">
-                  <div className="table" />
-                  <DeskGrid people={floor.meeting} onSelect={onSelect} activityFor={() => "In a meeting"} />
-                </Room>
-                <Room className="room-meet" title="Cross-team room" note="Newest from four wings">
-                  <div className="table" />
-                  <DeskGrid people={floor.standup} onSelect={onSelect} activityFor={() => "In a meeting"} />
-                </Room>
-              </div>
-            </div>
-
-            <Walk kind="v" label="East walk" />
-
-            <div className="plan-stack">
-              <Room className="room-arch" title="Architecture studios" note="By subgroup">
-                <DeskGrid people={floor.studios} onSelect={onSelect} activityFor={(agent) => agent.subgroup || task(agent)} />
-              </Room>
-              <Room className="room-video-bank" title="Video rooms" note="Presence">
-                <div className="video-row">
-                  {floor.videos.map((people, index) => (
-                    <div className="video-room" key={index}>
-                      <h3>Video {index + 1}</h3>
-                      <div className="screen" />
-                      <DeskGrid people={people} onSelect={onSelect} activityFor={() => "In a video room"} />
-                      {people.length < 2 ? <p className="muted empty-room">Open seat</p> : null}
-                    </div>
-                  ))}
-                </div>
-              </Room>
-              <Room className="room-voice" title="Presence desks" note="Beside the video rooms">
-                <DeskGrid people={floor.presenceDesks} onSelect={onSelect} activityFor={task} />
-              </Room>
-            </div>
-          </div>
-
-          <Walk kind="h" label="South walkway" />
-
-          <div className="plan-row plan-south">
-            <Room className="room-build" title="Build floor" note={`${floor.build.length} at desks, aisles between rows`}>
-              <DeskGrid people={floor.build} onSelect={onSelect} activityFor={task} aisleEvery={6} />
-            </Room>
-            <Walk kind="v" label="Board walk" />
-            <Room className="room-board" title="Board room" note="Mission Control">
-              <div className="board-layout">
-                <DeskGrid people={floor.board.slice(0, 3)} onSelect={onSelect} activityFor={() => "Around the board table"} />
-                <div className="board-table">Board table</div>
-                <DeskGrid people={floor.board.slice(3)} onSelect={onSelect} activityFor={() => "Around the board table"} />
-              </div>
-            </Room>
-          </div>
+          <p>{floor.blurb}</p>
+        </header>
+        <Boulevard walkers={[]} onSelect={onSelect} />
+        <div className="hq-rooms">
+          <Room title="Front desk" note="Operations reside here">
+            <SeatGrid people={lobby.desk} onSelect={onSelect} activityFor={task} />
+          </Room>
+          <Room title="Coffee" note="Gathering">
+            <SeatGrid people={lobby.coffee} onSelect={onSelect} activityFor={() => "At the coffee bar"} />
+          </Room>
+          <Room title="Juice bar" note="Gathering">
+            <SeatGrid people={lobby.juice} onSelect={onSelect} activityFor={() => "At the juice bar"} />
+          </Room>
+          <Room title="Plaza" note="Open gathering" wide>
+            <SeatGrid people={lobby.plaza} onSelect={onSelect} activityFor={() => "In the plaza"} />
+          </Room>
         </div>
       </div>
+    );
+  } else if (floor.id === "engineering") {
+    const plan = layout.floors.engineering;
+    const mid = Math.ceil(plan.residing.length / 2);
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-rooms">
+          <Room title="West wing" note="Residing">
+            <SeatGrid people={plan.residing.slice(0, mid)} onSelect={onSelect} activityFor={task} />
+          </Room>
+          <Room title="East wing" note="Residing">
+            <SeatGrid people={plan.residing.slice(mid)} onSelect={onSelect} activityFor={task} />
+          </Room>
+        </div>
+      </WorkFloor>
+    );
+  } else if (floor.id === "knowledge") {
+    const plan = layout.floors.knowledge;
+    const mid = Math.ceil(plan.residing.length / 2);
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-rooms">
+          <Room title="North stacks" note="Residing">
+            <SeatGrid people={plan.residing.slice(0, mid)} onSelect={onSelect} activityFor={task} />
+          </Room>
+          <Room title="South stacks" note="Residing">
+            <SeatGrid people={plan.residing.slice(mid)} onSelect={onSelect} activityFor={task} />
+          </Room>
+        </div>
+      </WorkFloor>
+    );
+  } else if (floor.id === "research") {
+    const plan = layout.floors.research;
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <Room title="Lab benches" note="Where the work happens" wide>
+          <SeatGrid people={plan.residing} onSelect={onSelect} activityFor={task} />
+        </Room>
+      </WorkFloor>
+    );
+  } else if (floor.id === "presence") {
+    const plan = layout.floors.presence;
+    const video = [plan.residing.slice(0, 2), plan.residing.slice(2, 4), plan.residing.slice(4, 6)];
+    const desks = plan.residing.slice(6);
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-rooms">
+          {video.map((people, roomIndex) => (
+            <Room key={roomIndex} title={`Video ${roomIndex + 1}`} note="Happening">
+              <div className="hq-screen" />
+              <SeatGrid people={people} onSelect={onSelect} activityFor={() => "In a video room"} />
+            </Room>
+          ))}
+          <Room title="Studios" note="Residing">
+            <SeatGrid people={desks} onSelect={onSelect} activityFor={task} />
+          </Room>
+        </div>
+      </WorkFloor>
+    );
+  } else if (floor.id === "architecture") {
+    const plan = layout.floors.architecture;
+    const meeting = plan.residing.filter((agent) => agent.subgroup === "Review");
+    let room = meeting;
+    let studios = plan.residing.filter((agent) => agent.subgroup !== "Review");
+    if (!room.length) {
+      room = studios.slice(0, 3);
+      studios = studios.slice(3);
+    }
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-rooms">
+          <Room title="Meeting room" note="Happening">
+            <SeatGrid people={room} onSelect={onSelect} activityFor={() => "In a meeting"} />
+          </Room>
+          <Room title="Studios" note="Residing">
+            <SeatGrid people={studios} onSelect={onSelect} activityFor={(agent) => agent.subgroup || task(agent)} />
+          </Room>
+        </div>
+      </WorkFloor>
+    );
+  } else if (floor.id === "red") {
+    const plan = layout.floors.red;
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-rooms">
+          {RED_ROOMS.map((name) => (
+            <Room key={name} title={name} note="Residing">
+              <SeatGrid people={plan.residing.filter((agent) => agent.subgroup === name)} onSelect={onSelect} activityFor={task} />
+            </Room>
+          ))}
+        </div>
+      </WorkFloor>
+    );
+  } else {
+    const plan = layout.floors.board;
+    const mid = Math.ceil(plan.residing.length / 2);
+    body = (
+      <WorkFloor title={floor} blurb={floor.blurb} plan={plan} onSelect={onSelect}>
+        <div className="hq-board">
+          <SeatGrid people={plan.residing.slice(0, mid)} onSelect={onSelect} activityFor={() => "Around the board table"} />
+          <div className="hq-table">Board table</div>
+          <SeatGrid people={plan.residing.slice(mid)} onSelect={onSelect} activityFor={() => "Around the board table"} />
+        </div>
+      </WorkFloor>
+    );
+  }
+
+  return (
+    <section className="hq">
+      <aside className="hq-directory">
+        <p className="hq-kicker light">Building directory</p>
+        <div className="hq-nav">
+          <button type="button" onClick={() => step(-1)}>Prev</button>
+          <button type="button" onClick={() => step(1)}>Next</button>
+        </div>
+        {FLOORS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={item.id === floor.id ? "hq-floor-btn active" : "hq-floor-btn"}
+            onClick={() => setFloorId(item.id)}
+          >
+            <span>{item.level}</span>
+            <strong>{item.name}</strong>
+            <em>{countFor(item.id)}</em>
+          </button>
+        ))}
+        <p className="hq-legend">Fast walk is the newest person on that floor’s boulevard. Walking is the next. Everyone else on a work floor is residing. Idle people gather in the lobby.</p>
+      </aside>
+      <div className="hq-stage">{body}</div>
     </section>
   );
 }
