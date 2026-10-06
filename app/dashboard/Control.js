@@ -1,29 +1,63 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+const LIVE = new Set(["CREATING", "RUNNING", "ACTIVE"]);
+
+function plainStatus(record) {
+  const run = record?.runs?.[0]?.status;
+  if (run === "CREATING" || run === "RUNNING" || record?.agent?.status === "ACTIVE") return "Working on it";
+  if (run === "FINISHED") return "Finished";
+  if (run === "ERROR") return "Stopped with an error";
+  if (run === "CANCELLED") return "Stopped";
+  if (run === "EXPIRED") return "Expired";
+  if (!record?.agent) return "Not started";
+  return "Waiting";
+}
+
+function duration(ms) {
+  if (!ms) return "";
+  const seconds = Math.round(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+}
 
 export function Control({ agent }) {
   const [text, setText] = useState("");
+  const [openPr, setOpenPr] = useState(false);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [record, setRecord] = useState(null);
+
+  const load = useCallback(async () => {
+    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}`);
+    const body = await response.json();
+    setRecord(body);
+    return body;
+  }, [agent.agent_id]);
 
   useEffect(() => {
     let cancelled = false;
     setRecord(null);
     setNote("");
-    fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}`)
-      .then((response) => response.json())
-      .then((body) => {
-        if (!cancelled) setRecord(body);
-      })
-      .catch(() => {
-        if (!cancelled) setRecord({ error: "Could not read the cloud record." });
-      });
+    load().catch(() => {
+      if (!cancelled) setRecord({ error: "Could not read the cloud record." });
+    });
     return () => {
       cancelled = true;
     };
-  }, [agent.agent_id]);
+  }, [load]);
+
+  const latest = record?.runs?.[0];
+  const running = LIVE.has(latest?.status) || record?.agent?.status === "ACTIVE";
+
+  useEffect(() => {
+    if (!running) return undefined;
+    const timer = setInterval(() => {
+      load().catch(() => {});
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [running, load]);
 
   async function send(action) {
     setBusy(true);
@@ -39,14 +73,14 @@ export function Control({ agent }) {
           text,
           neighborhood: agent.neighborhood || "",
           typical_task: agent.typical_task || "",
+          open_pull_request: openPr,
         }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Send failed");
-      setNote(body.created ? `Started a new cloud agent. Run ${body.run?.status || "queued"}.` : `Sent. Run ${body.run?.status || "queued"}.`);
-      setText("");
-      const refresh = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}`);
-      setRecord(await refresh.json());
+      setNote(action === "cancel" ? "Stop requested." : "Sent. This page will keep checking until the run finishes.");
+      if (action !== "cancel") setText("");
+      await load();
     } catch (error) {
       setNote(error.message);
     } finally {
@@ -54,45 +88,74 @@ export function Control({ agent }) {
     }
   }
 
-  const cloud = record?.agent;
-  const usage = record?.usage;
+  async function openArtifact(path) {
+    const response = await fetch(`/api/control?agent_id=${encodeURIComponent(agent.agent_id)}&artifact=${encodeURIComponent(path)}`);
+    const body = await response.json();
+    if (!response.ok || !body.url) {
+      setNote(body.error || "Could not open that file.");
+      return;
+    }
+    window.open(body.url, "_blank", "noopener,noreferrer");
+  }
+
+  const branches = latest?.branches || [];
 
   return (
     <div className="control">
-      <p className="muted">Talk and Message start a Cursor cloud run in plan mode and tell it not to edit the repo. Assign starts a run that may change a new branch and does not open a pull request. Voice is not connected.</p>
-      {record?.configured === false ? <p className="error">CURSOR_API_KEY is not set on this deployment. Add a key from Cursor Dashboard, API Keys.</p> : null}
+      <div className="now">
+        <strong>{record ? plainStatus(record) : "Checking"}</strong>
+        {record?.agent?.url ? <a href={record.agent.url}>Open in Cursor</a> : null}
+      </div>
+      {record?.keyName ? <p className="muted">Connected with Cursor key {record.keyName}.</p> : null}
+      {record?.configured === false ? <p className="error">Add CURSOR_API_KEY from Cursor Dashboard → API Keys.</p> : null}
       {record?.error ? <p className="error">{record.error}</p> : null}
-      <h3>Cloud agent</h3>
-      {cloud ? (
-        <p>{cloud.status} · <a href={cloud.url}>Open in Cursor</a></p>
-      ) : (
-        <p className="muted">{record ? "No cloud agent yet. Talk, Message, or Assign starts one." : "Reading the cloud record."}</p>
-      )}
+      <h3>Latest reply</h3>
+      {latest?.result ? <div className="reply">{latest.result}</div> : <p className="muted">{running ? "Still working." : "No reply yet."}</p>}
+      {latest?.durationMs ? <p className="muted">Last run took {duration(latest.durationMs)}.</p> : null}
+      {branches.map((branch) => (
+        <p key={`${branch.branch}-${branch.prUrl}`}>
+          {branch.prUrl ? <a href={branch.prUrl}>Pull request</a> : null}
+          {branch.branch ? <span className="muted"> {branch.branch}</span> : null}
+        </p>
+      ))}
       <label htmlFor="control-text">What should they do</label>
       <textarea id="control-text" rows={4} value={text} onChange={(event) => setText(event.target.value)} />
+      <label className="check">
+        <input type="checkbox" checked={openPr} onChange={(event) => setOpenPr(event.target.checked)} />
+        Open a pull request when assigning work
+      </label>
       <div className="actions">
-        <button className="quiet" type="button" disabled={busy} onClick={() => send("talk")}>Talk</button>
-        <button className="quiet" type="button" disabled={busy} onClick={() => send("message")}>Message</button>
-        <button className="quiet" type="button" disabled={busy} onClick={() => send("assign")}>Assign</button>
-        <a href={agent.primary_objective_url}>Inspect work</a>
+        <button className="primary" type="button" disabled={busy || running} onClick={() => send("talk")}>Ask</button>
+        <button className="quiet" type="button" disabled={busy || running} onClick={() => send("assign")}>Assign work</button>
+        <button className="quiet" type="button" disabled={busy || !running} onClick={() => send("cancel")}>Stop</button>
+        <a href={agent.primary_objective_url}>Filed work</a>
       </div>
       {note ? <p>{note}</p> : null}
-      <h3>Work history</h3>
-      {agent.primary_objective_url ? <p><a href={agent.primary_objective_url}>Filed work</a></p> : null}
+      <h3>Earlier runs</h3>
       {record?.runs?.length ? (
         <ul className="history">
           {record.runs.map((run) => (
-            <li key={run.id}><strong>{run.status}</strong> {run.createdAt} {run.result ? `· ${run.result}` : ""}</li>
+            <li key={run.id}><strong>{plainStatus({ runs: [run] })}</strong> {run.createdAt}</li>
           ))}
         </ul>
       ) : (
-        <p className="muted">No Cursor runs yet. The filed work link above is the join record.</p>
+        <p className="muted">Nothing sent yet. Ask starts a reply. Assign work can change a new branch.</p>
       )}
-      <h3>Performance</h3>
-      {usage ? (
-        <p>{usage.totalTokens} tokens across {usage.runs} runs. Input {usage.inputTokens}. Output {usage.outputTokens}.</p>
+      <h3>Files</h3>
+      {record?.artifacts?.length ? (
+        <ul className="history">
+          {record.artifacts.map((item) => (
+            <li key={item.path}><button className="quiet" type="button" onClick={() => openArtifact(item.path)}>{item.path}</button></li>
+          ))}
+        </ul>
       ) : (
-        <p className="muted">No token usage yet. Check-in time on the grid is still the activity clock.</p>
+        <p className="muted">No files from this agent yet.</p>
+      )}
+      <h3>Use</h3>
+      {record?.usage ? (
+        <p className="muted">{record.usage.totalTokens.toLocaleString()} tokens across {record.usage.runs} runs.</p>
+      ) : (
+        <p className="muted">No token use yet.</p>
       )}
     </div>
   );

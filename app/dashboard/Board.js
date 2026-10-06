@@ -89,7 +89,7 @@ export function Board({ agents, issues, queueError, repoUrl, clawUrl }) {
         </div>
       </header>
       <main className="wrap">
-        <p className="muted">Every tab reads this same roster. Working means a check-in within three hours. Idle means an older check-in. Talk, Message, and Assign on a person start a Cursor cloud run. They do not start a voice call.</p>
+        <p className="muted">Every tab reads this same roster. Working means a check-in within three hours. Idle means an older check-in. Ask and Assign work on a person start a Cursor cloud run. They do not start a voice call.</p>
         {view === "org" ? (
           <OrgMap
             agents={agents}
