@@ -9,8 +9,8 @@ const FLOORS = [
   { id: "presence", level: 5, name: "Presence", blurb: "Video rooms are where calls happen. The other desks are where people reside." },
   { id: "research", level: 4, name: "Research", blurb: "Labs. The work happens at the benches." },
   { id: "knowledge", level: 3, name: "Knowledge", blurb: "The library. People reside in the stacks." },
-  { id: "engineering", level: 2, name: "Engineering", blurb: "Two wings off the boulevard. This is where the build resides." },
-  { id: "lobby", level: 1, name: "Lobby", blurb: "Arrival and gathering. Coffee, juice, the plaza, and the front desk." },
+  { id: "engineering", level: 2, name: "Engineering", blurb: "One desk hall off the boulevard. This is where the build resides." },
+  { id: "lobby", level: 1, name: "Lobby", blurb: "Arrival and gathering. Front desk, coffee, and juice." },
 ];
 
 const RED_ROOMS = ["Defense", "Privacy", "Audit", "Governance"];
@@ -44,10 +44,10 @@ function splitResidence(people) {
 }
 
 function columnsFor(count) {
-  if (count <= 1) return 1;
-  if (count <= 4) return 2;
-  if (count <= 9) return 3;
-  if (count <= 16) return 4;
+  if (count <= 2) return Math.max(1, count);
+  if (count <= 6) return 2;
+  if (count <= 12) return 3;
+  if (count <= 20) return 4;
   return 5;
 }
 
