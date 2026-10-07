@@ -15,20 +15,30 @@ fi
 ISSUE=$(gh issue list --repo "$REPO" --state all --limit 20 --search "join: ${AGENT_ID} in:title" --json number,title --jq ".[] | select(.title==\"join: ${AGENT_ID}\") | .number")
 DIR="$ROOT/docs/packs/${AGENT_ID}"
 mkdir -p "$DIR"
-gh issue view "$ISSUE" --repo "$REPO" --json number,title,url,body,comments > "$DIR/issue.json"
-{
-  echo "# Thread export for ${AGENT_ID}"
-  echo
-  echo "Issue ${ISSUE}: https://github.com/${REPO}/issues/${ISSUE}"
-  echo
-  echo "## Body"
-  echo
-  jq -r .body "$DIR/issue.json"
-  echo
-  echo "## Comments"
-  echo
-  jq -r '.comments[] | "### \(.author.login) \(.createdAt)\n\n\(.body)\n"' "$DIR/issue.json"
-} > "$DIR/THREAD.md"
+gh issue view "$ISSUE" --repo "$REPO" --json number,title,url,body,comments --jq '{number,title,url,body,comments:[.comments[]|{login:.author.login,createdAt,body}]}' > "$DIR/issue.json"
+python3 - "$DIR/issue.json" "$DIR/THREAD.md" "$AGENT_ID" "$ISSUE" "$REPO" <<'PY'
+import json, sys
+src, dest, agent_id, issue, repo = sys.argv[1:]
+data = json.load(open(src, encoding="utf-8"))
+lines = [
+    f"# Thread export for {agent_id}",
+    "",
+    f"Issue {issue}: https://github.com/{repo}/issues/{issue}",
+    "",
+    "## Body",
+    "",
+    data.get("body") or "",
+    "",
+    "## Comments",
+    "",
+]
+for comment in data.get("comments") or []:
+    lines.append(f"### {comment.get('login')} {comment.get('createdAt')}")
+    lines.append("")
+    lines.append(comment.get("body") or "")
+    lines.append("")
+open(dest, "w", encoding="utf-8").write("\n".join(lines))
+PY
 cp "$ROOT/docs/packs/OFFICE.md" "$DIR/OFFICE.md"
 if [ -f "$ROOT/docs/agents/${AGENT_ID}.md" ]; then
   cp "$ROOT/docs/agents/${AGENT_ID}.md" "$DIR/agent.md"
