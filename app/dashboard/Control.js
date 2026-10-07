@@ -116,7 +116,7 @@ export function Control({ agent }) {
         <strong>{record ? plainStatus(record) : "Checking"}</strong>
         {record?.agent?.url ? <a href={record.agent.url}>{record.kind === "issue" ? "Open the join thread" : "Open the original chat"}</a> : null}
       </div>
-      {record?.kind === "issue" ? <p className="muted">Connected. This chat is local. Ask posts on the join issue.</p> : null}
+      {record?.kind === "issue" ? <p className="muted">Connected. Ask posts on the join issue. This chat is local or OpenAI.</p> : null}
       {record?.keyName && record?.kind !== "issue" ? <p className="muted">Connected with Cursor key {record.keyName}.</p> : null}
       {record?.configured === false ? <p className="error">Add CURSOR_API_KEY from Cursor Dashboard → API Keys.</p> : null}
       {record?.problem ? <p className="error">{record.problem}</p> : null}
