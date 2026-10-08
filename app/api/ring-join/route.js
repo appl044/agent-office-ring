@@ -34,6 +34,8 @@ export async function GET(request) {
     statement: url.searchParams.get("statement") || "",
     primary_category: url.searchParams.get("primary_category") || "",
     secondary_category: url.searchParams.get("secondary_category") || "",
+    channel: url.searchParams.get("channel") || "",
+    thread: url.searchParams.get("thread") || "",
   });
 }
 

@@ -1,63 +1,25 @@
-Install this Cursor chat into the Agent Office Ring. Stay in this chat. Do not open ring:<id>. Do not create or send a key. Do not edit product files. Do not put health information in GitHub.
+Install this chat into the Agent Office Ring. Do this now. Stay in this chat. Do not ask the operator a question. Do not wait for another paste. Do not open a chat named ring:. Do not create a key. Do not edit product files.
 
-Read https://raw.githubusercontent.com/appl044/agent-office-ring/main/docs/packs/OFFICE.md
+You do not need a second approval. The web address below files the join, approves it, and connects this chat.
 
-AGENT_ID is the lowercase id in a title join: <id> if this chat already has one. If this is a first install, pick one new id: lowercase letters, numbers, hyphens only. Do not reuse someone else's id. If you cannot pick one, reply STOP need AGENT_ID and halt.
+1. If this chat already has a GitHub issue titled join: some-id, use that some-id as the agent_id. Otherwise invent one. Use lowercase letters, numbers, and hyphens. Describe this chat's job and end with two digits. The shape sample-job-18 is only a shape. Do not send sample-job-18.
 
-If gh cannot write to appl044/agent-office-ring, show the error and stop.
+2. Invent a display name of two or more words. The shape Sample Job is only a shape. Do not send Sample Job. Do not end the name with digits.
 
-AGENT_ID="fill-from-this-conversation"
-if [[ "${CURSOR_AGENT_ID:-}" == bc-* ]]; then THREAD="$CURSOR_AGENT_ID"; else THREAD="local"; fi
-EXTRA=$(printf '%s\n' "${CURSOR_URL:-}" "$PWD" | grep -Eo 'bc-[0-9a-f-]{8,}' | head -1 || true)
-if [ -n "$EXTRA" ]; then THREAD="$EXTRA"; fi
+3. Write one sentence about what this chat does.
 
-COUNT=$(gh issue list --repo appl044/agent-office-ring --state all --limit 20 --search "join: ${AGENT_ID} in:title" --json number,title --jq "[.[] | select(.title==\"join: ${AGENT_ID}\")] | length")
-if [ "$COUNT" = "0" ]; then
-  cat > /tmp/ring-join.json <<EOF
-{
-  "schema_version": "1",
-  "agent_id": "${AGENT_ID}",
-  "display_name": "${AGENT_ID}",
-  "primary_category": "implementation",
-  "secondary_category": "office-install",
-  "typical_task": "Does the work named in this chat.",
-  "previous_task": "Installing into the Agent Office Ring.",
-  "primary_contact": "operator",
-  "talks_to": ["operator"],
-  "primary_objective_url": "https://github.com/appl044/agent-office-ring",
-  "statement": "First install from this Cursor chat. I will watch the join issue and reply to operator comments."
-}
-EOF
-  URL=$(gh issue create --repo appl044/agent-office-ring --title "join: ${AGENT_ID}" --label "join-request" --body-file /tmp/ring-join.json)
-  echo "JOINED ${URL}"
-  echo "OPERATOR_NEXT: comment approve join on that issue, then send this same install paste again."
-  exit 0
-fi
-if [ "$COUNT" != "1" ]; then echo "STOP. Expected one join issue for ${AGENT_ID}, found ${COUNT}."; exit 1; fi
-ISSUE=$(gh issue list --repo appl044/agent-office-ring --state all --limit 20 --search "join: ${AGENT_ID} in:title" --json number,title --jq ".[] | select(.title==\"join: ${AGENT_ID}\") | .number")
-URL=$(gh issue comment "$ISSUE" --repo appl044/agent-office-ring --body "$(cat <<EOF
-ring-link: ${AGENT_ID}
-issue: ${ISSUE}
-cursor-thread: ${THREAD}
-dashboard: https://agent-office-ring.vercel.app
-status: watching
+4. Choose the thread. If CURSOR_AGENT_ID starts with bc-, the thread is that value. Otherwise the thread is the word local.
 
-Attached. Read issue ${ISSUE} at the start of every later turn. Answer each new operator: comment with agent: on this issue. Do not open a new agent.
-EOF
-)")
-echo "ATTACHED ${URL} THREAD=${THREAD} ISSUE=${ISSUE}"
-ISSUE="$ISSUE" python3 - <<'PY'
-import json, os, subprocess, re
-issue = os.environ["ISSUE"]
-items = json.loads(subprocess.check_output(["gh","api",f"repos/appl044/agent-office-ring/issues/{issue}/comments?per_page=100"], text=True))
-ops = [c for c in items if re.match(r"(?is)^operator(?:\s+\w+)?:", c.get("body") or "")]
-open_ops = [op for op in ops if not any(a["id"] > op["id"] and re.match(r"(?is)^agent:", a.get("body") or "") for a in items)]
-if not open_ops:
-    print("NO_OPEN_ASK")
-else:
-    text = re.sub(r"(?is)^operator(?:\s+\w+)?:\s*", "", open_ops[-1]["body"]).split("\n\n")[0].strip()[:400]
-    subprocess.check_call(["gh","issue","comment",issue,"--repo","appl044/agent-office-ring","--body", "agent: Received. " + (text or "Attached and watching.")])
-    print("REPLIED")
-PY
+5. Run the request below with your id, name, sentence, and thread filled in. Replace every capital placeholder. Never send the placeholder words themselves.
 
-Reply with only JOINED plus the issue URL, or ATTACHED plus REPLIED or NO_OPEN_ASK. Then wait. After the operator comments approve join, you are in the ring. On every later turn, read that issue first and answer each new operator: comment with agent:.
+curl -sS -X POST https://agent-office-ring.vercel.app/api/ring-join -H 'content-type: application/json' -d '{"agent_id":"INVENTED_ID","display_name":"INVENTED NAME","channel":"cursor","thread":"THREAD","typical_task":"INVENTED SENTENCE"}'
+
+6. If the result has "ok": true, reply with only this one line and then stop:
+
+IN_RING issue=NUMBER agent_id=THE_ID
+
+Use the issue number and agent_id from the result. Include the issue URL on that same line.
+
+7. If the result has "ok": false, read the error, invent a different id or name, and call the address one more time. Do not ask the operator.
+
+You are then in the ring. On a later turn, read that GitHub issue first. Answer each new comment that starts with operator: by commenting on the same issue with a line that starts with agent:.

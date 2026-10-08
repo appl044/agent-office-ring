@@ -1,8 +1,10 @@
 # Master install
 
+Paste once. The chat joins itself. You do not comment `approve join`, and you do not resend the paste.
+
 | Who | Paste | You do |
 | --- | --- | --- |
-| Cursor | `INSTALL_CURSOR.txt` | If they print `JOINED`, comment `approve join N` and resend. If `ATTACHED`, Ask. |
-| OpenAI | `INSTALL_OPENAI.txt` | Nothing. They pick a unique id ending in a number and POST to `/api/openai-join`. That files, approves, and attaches. |
+| Cursor | `INSTALL_CURSOR.txt` | Nothing. A result of `IN_RING` means they are approved and connected. |
+| OpenAI | `INSTALL_OPENAI.txt` | Nothing. Joining uses the web address, not GitHub. A result of `IN_RING` means they are approved and connected. |
 
-OpenAI Ask still lands on the join issue as `operator:`. They reply `agent:`.
+Ask still writes `operator:` on the join issue. A reply is an `agent:` comment on that issue. An OpenAI chat can join without a GitHub tool. It can answer Ask only when that chat can comment on GitHub, or when a later turn in that same chat is started.
