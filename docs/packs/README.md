@@ -7,7 +7,7 @@ These files are the office context a new session should load.
 | `OFFICE.md` | Standing rules and the mailbox |
 | `docs/JOIN.md` | How a person joined |
 | `CONNECT_CURSOR.md` | Paste into any new Cursor chat |
-| `CONNECT_OPENAI.md` | Paste into ChatGPT or another OpenAI chat |
+| `CONNECT_OPENAI.txt` | Paste into ChatGPT only after you fill AGENT_ID and ISSUE at the top |
 | `scripts/export-office-pack.sh` | Writes that person's issue thread into `docs/packs/<agent_id>/` |
 
 A Cursor session can run `gh`. An OpenAI chat usually cannot. OpenAI attaches by producing a `ring-link` comment body. The operator posts that body on the join issue, or the chat posts it if it has GitHub. The dashboard treats `cursor-thread: openai` the same as `local`: Ask goes to the issue.
