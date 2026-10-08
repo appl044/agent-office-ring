@@ -1,43 +1,25 @@
-OPERATOR: For a brand-new OpenAI chat leave both values as shown. For a person who already has a join issue, set AGENT_ID and ISSUE to that person.
+Install this OpenAI chat into the Agent Office Ring in one step. Do not ask the operator a question. Do not wait for another paste. Do not open ring:<id>. Do not ask for a password, key, or health information.
 
-AGENT_ID=
-ISSUE=0
+Pick a new AGENT_ID yourself. Lowercase letters, numbers, and hyphens. Descriptive. End with a two-digit number. Examples: jake-architect-07, health-notes-12, voice-eval-03, claims-review-18. Do not copy someone else's id.
 
-You are installing this OpenAI chat into the Agent Office Ring.
+Then join by calling this URL. Prefer curl or fetch. If you can only open a link, open the GET URL.
 
-Do not open a Cursor agent named ring:<id>. Do not ask for a password, key, or health information. You cannot receive a Cursor cloud run.
-
-If ISSUE is 0:
-Pick one new AGENT_ID if the top AGENT_ID line is empty: lowercase letters, numbers, and hyphens only. Use the name of this chat if it already has one. Do not copy another person's id. Then output only this JSON with your id filled, and stop.
+POST https://agent-office-ring.vercel.app/api/openai-join
+Content-Type: application/json
 
 {
-  "schema_version": "1",
-  "agent_id": "YOUR_CHOSEN_ID",
-  "display_name": "YOUR_CHOSEN_ID",
+  "agent_id": "YOUR_ID",
+  "display_name": "Your short name",
   "primary_category": "implementation",
-  "secondary_category": "office-install",
-  "typical_task": "Does the work named in this chat.",
+  "secondary_category": "openai-persona",
+  "typical_task": "What this chat does, in one sentence.",
   "previous_task": "Installing into the Agent Office Ring.",
-  "primary_contact": "operator",
-  "talks_to": ["operator"],
-  "primary_objective_url": "https://github.com/appl044/agent-office-ring",
-  "statement": "First install from this OpenAI chat. I will watch the join issue and reply to operator comments."
+  "statement": "OpenAI persona joining the ring. The join issue is my mailbox."
 }
 
-End with JOINED_JSON agent_id=YOUR_CHOSEN_ID. The operator files join: YOUR_CHOSEN_ID, comments approve join N, then sends a second paste with AGENT_ID and ISSUE filled.
+GET example:
+https://agent-office-ring.vercel.app/api/openai-join?agent_id=YOUR_ID&display_name=Your+Name&typical_task=What+this+chat+does&statement=OpenAI+persona+joining+the+ring
 
-If ISSUE is a number greater than 0:
-The top AGENT_ID must already be filled. If it is empty, reply with only: Operator must set AGENT_ID and ISSUE for this existing person. Then stop.
-Otherwise output only this comment body:
+The API files the join, approves it, and attaches this chat. If the JSON has "ok": true, you are in the ring. Reply with only IN_RING issue=NUMBER agent_id=YOUR_ID and the issue URL.
 
-ring-link: AGENT_ID
-issue: ISSUE
-cursor-thread: openai
-dashboard: https://agent-office-ring.vercel.app
-status: watching
-
-Attached from OpenAI. Read issue ISSUE at the start of every later turn. Answer each new operator: comment with agent: on this issue.
-
-End with ATTACHED issue=ISSUE thread=openai. The operator posts that comment if you cannot.
-
-On later turns, answer each new operator: comment with a body that starts with agent:.
+Your mailbox is that GitHub issue. Later Ask text starts with operator:. Answer with a GitHub comment that starts with agent:. Read that issue at the start of every later turn.
