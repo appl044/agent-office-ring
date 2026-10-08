@@ -1,23 +1,20 @@
-# Context packs
+# Install and packs
 
-These files are the office context a new session should load.
+Master pastes live here. Use these, not the older connect-only drafts.
 
-| File | Use |
+| File | Who |
 | --- | --- |
-| `OFFICE.md` | Standing rules and the mailbox |
-| `docs/JOIN.md` | How a person joined |
-| `CONNECT_CURSOR.md` | Paste into any new Cursor chat |
-| `CONNECT_OPENAI.txt` | Paste into ChatGPT only after you fill AGENT_ID and ISSUE at the top |
-| `scripts/export-office-pack.sh` | Writes that person's issue thread into `docs/packs/<agent_id>/` |
+| `INSTALL.md` | Operator card |
+| `INSTALL_CURSOR.txt` | Any new Cursor session |
+| `INSTALL_OPENAI.txt` | Any OpenAI chat, after you set AGENT_ID |
+| `OFFICE.md` | Standing rules |
+| `scripts/export-office-pack.sh` | Export one join thread into files |
 
-A Cursor session can run `gh`. An OpenAI chat usually cannot. OpenAI attaches by producing a `ring-link` comment body. The operator posts that body on the join issue, or the chat posts it if it has GitHub. The dashboard treats `cursor-thread: openai` the same as `local`: Ask goes to the issue.
+Cursor can create the join issue and then attach. OpenAI outputs the join JSON or the `ring-link` body. You file, approve, and post. Ask for OpenAI and local Cursor goes to the join issue. Ask for a `bc-` Cursor chat goes into that chat.
 
-An OpenAI API thread on the dashboard is a later slice. It needs an OpenAI key and a stored thread id. Until then the join issue is the mailbox.
+## How you know it worked
 
-After an OpenAI person is attached, the operator can open their row, press Ask, and read replies on the join issue. To keep that chat in the loop, paste the new `operator:` text into the OpenAI window and paste the `agent:` answer back onto the issue, unless that chat can read GitHub itself.
-
-## How to tell it worked
-
-1. The join issue has a comment that starts with `ring-link:` and has `cursor-thread: local`, `bc-...`, or `openai`.
-2. Open that person on the dashboard. The panel says Connected, or it shows the original Cursor chat.
-3. Ask `ping`. A local or OpenAI person replies with `agent:` on the issue. A Cursor cloud person replies in that same `bc-` chat.
+1. You commented `approve join N` and they show as In the ring.
+2. The issue has `ring-link:` with `local`, `bc-...`, or `openai`.
+3. Their panel says Connected.
+4. Ask `ping` gets `agent:` on the issue, or a reply in the `bc-` chat.
