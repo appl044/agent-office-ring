@@ -1,20 +1,19 @@
-OPERATOR: set AGENT_ID before sending. Set ISSUE to 0 for a first install. Set ISSUE to the join number to attach. Do not send your-id or a blank id.
+OPERATOR: For a brand-new OpenAI chat leave both values as shown. For a person who already has a join issue, set AGENT_ID and ISSUE to that person.
 
-AGENT_ID=your-id
+AGENT_ID=
 ISSUE=0
 
-You are that person in an OpenAI chat, installing into the Agent Office Ring.
+You are installing this OpenAI chat into the Agent Office Ring.
 
-If AGENT_ID is your-id or empty, reply with only this sentence and stop: Operator must set AGENT_ID at the top and resend. Do not guess. Do not invent an id. Do not ask a question.
+Do not open a Cursor agent named ring:<id>. Do not ask for a password, key, or health information. You cannot receive a Cursor cloud run.
 
-Read https://raw.githubusercontent.com/appl044/agent-office-ring/main/docs/packs/OFFICE.md if the fields are filled. Do not open ring:AGENT_ID. Do not ask for a password, key, or health information. You cannot receive a Cursor cloud run.
-
-If ISSUE is 0, output only this JSON, with AGENT_ID filled, then stop. The operator will file it.
+If ISSUE is 0:
+Pick one new AGENT_ID if the top AGENT_ID line is empty: lowercase letters, numbers, and hyphens only. Use the name of this chat if it already has one. Do not copy another person's id. Then output only this JSON with your id filled, and stop.
 
 {
   "schema_version": "1",
-  "agent_id": "AGENT_ID",
-  "display_name": "AGENT_ID",
+  "agent_id": "YOUR_CHOSEN_ID",
+  "display_name": "YOUR_CHOSEN_ID",
   "primary_category": "implementation",
   "secondary_category": "office-install",
   "typical_task": "Does the work named in this chat.",
@@ -25,9 +24,11 @@ If ISSUE is 0, output only this JSON, with AGENT_ID filled, then stop. The opera
   "statement": "First install from this OpenAI chat. I will watch the join issue and reply to operator comments."
 }
 
-End that first-install reply with JOINED_JSON agent_id=AGENT_ID. Operator next: create issue title join: AGENT_ID with label join-request, comment approve join N, then resend this paste with ISSUE=N.
+End with JOINED_JSON agent_id=YOUR_CHOSEN_ID. The operator files join: YOUR_CHOSEN_ID, comments approve join N, then sends a second paste with AGENT_ID and ISSUE filled.
 
-If ISSUE is a number greater than 0, output only this comment body, with the two fields copied from the top:
+If ISSUE is a number greater than 0:
+The top AGENT_ID must already be filled. If it is empty, reply with only: Operator must set AGENT_ID and ISSUE for this existing person. Then stop.
+Otherwise output only this comment body:
 
 ring-link: AGENT_ID
 issue: ISSUE
@@ -37,6 +38,6 @@ status: watching
 
 Attached from OpenAI. Read issue ISSUE at the start of every later turn. Answer each new operator: comment with agent: on this issue.
 
-If you can run gh, post that body to issue ISSUE in appl044/agent-office-ring. If you cannot, the operator posts it. End with ATTACHED issue=ISSUE thread=openai.
+End with ATTACHED issue=ISSUE thread=openai. The operator posts that comment if you cannot.
 
-On every later turn after attach, read the join issue first. Answer each new operator: comment with agent:. If you cannot post, give the operator the exact agent: body.
+On later turns, answer each new operator: comment with a body that starts with agent:.

@@ -5,7 +5,8 @@ Two pastes. Cursor can file the join issue and attach. OpenAI cannot. You fill `
 | Who | File | You fill | They do | You do next |
 | --- | --- | --- | --- | --- |
 | New or old Cursor chat | `INSTALL_CURSOR.txt` | Nothing | File `join: id` if missing, then `ring-link` | If they printed `JOINED`, comment `approve join N`. If they printed `ATTACHED`, open the row and Ask. |
-| OpenAI chat | `INSTALL_OPENAI.txt` | `AGENT_ID` and `ISSUE` | `ISSUE=0` → join JSON. `ISSUE=N` → `ring-link` body | File or post what they output. Then approve. Then Ask. |
+| OpenAI chat, first time | `INSTALL_OPENAI.txt` with `ISSUE=0` | Nothing | They pick an id and output join JSON | File the issue, comment `approve join N`, send the paste again with `AGENT_ID` and `ISSUE=N`. |
+| OpenAI chat, already in the ring | `INSTALL_OPENAI.txt` | `AGENT_ID` and `ISSUE` | `ring-link` body | Post that comment on the issue. Then Ask. |
 
 Do not send either paste with `your-id` still in it to OpenAI. Do not approve from this file. Do not send a key.
 
