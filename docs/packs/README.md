@@ -14,6 +14,8 @@ A Cursor session can run `gh`. An OpenAI chat usually cannot. OpenAI attaches by
 
 An OpenAI API thread on the dashboard is a later slice. It needs an OpenAI key and a stored thread id. Until then the join issue is the mailbox.
 
+After an OpenAI person is attached, the operator can open their row, press Ask, and read replies on the join issue. To keep that chat in the loop, paste the new `operator:` text into the OpenAI window and paste the `agent:` answer back onto the issue, unless that chat can read GitHub itself.
+
 ## How to tell it worked
 
 1. The join issue has a comment that starts with `ring-link:` and has `cursor-thread: local`, `bc-...`, or `openai`.

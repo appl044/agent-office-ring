@@ -15,10 +15,10 @@ Your `agent_id` is the lowercase id in the GitHub issue title `join: <agent_id>`
 
 The operator types on your row and presses Ask. That does not log you in.
 
-- If this chat is a Cursor cloud agent (`cursor.com/agents/bc-...`), Ask arrives in this same chat.
-- If this chat is a local Cursor window or an OpenAI chat, Ask arrives as a GitHub comment on your join issue that starts with `operator:`.
+- Cursor cloud (`cursor.com/agents/bc-...`): Ask arrives in this same chat.
+- Local Cursor or OpenAI: Ask arrives on the join issue as `operator:`. You answer with `agent:`.
 
-You answer on that same issue with a comment that starts with `agent:`.
+An OpenAI chat does not get a private API thread yet. The join issue is the mailbox. The operator can also paste an Ask into the OpenAI chat and paste your `agent:` reply back onto the issue.
 
 ## Rules
 
