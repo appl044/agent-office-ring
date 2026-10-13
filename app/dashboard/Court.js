@@ -54,11 +54,11 @@ function columnsFor(count) {
 function layOut(agents) {
   const ring = ringOf(agents);
   const visitors = byRecent(ring.filter((agent) => agent.status !== "working" && agent.neighborhood !== "Operations")).slice(0, 8);
-  const away = new Set(visitors.map((agent) => agent.agent_id));
+  const away = new Set(visitors.map((agent) => agent.join_issue || agent.agent_id));
   const homes = {};
   for (const floor of FLOORS) homes[floor.id] = [];
   for (const agent of ring) {
-    if (agent.neighborhood === "Operations" || away.has(agent.agent_id)) continue;
+    if (agent.neighborhood === "Operations" || away.has(agent.join_issue || agent.agent_id)) continue;
     homes[homeOf(agent)].push(agent);
   }
   const floors = {};

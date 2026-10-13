@@ -1,5 +1,9 @@
 # Control plan, 6 Oct 2026
 
+## Status, 12 Oct 2026
+
+The 6 Oct notes below record the empty-agent failure. They are not the current join rule. A chat joins by the paste in `docs/packs/INSTALL_CURSOR.txt` or `docs/packs/INSTALL_OPENAI.txt`. `POST /api/ring-join` files the issue, approves it, and attaches the chat. Issue 79 was a second Local Implementer with no chat link. Its approval was removed. Issue 16 remains that person. Local and OpenAI replies stay on the join issue.
+
 This is the current plan for talking to people on the dashboard. The API reference is `docs/CURSOR_CLOUD_COOKBOOK.md`. Older sentences in `docs/PLAN.md` that say the site does not contact Cursor, or that Ask creates `ring:{id}`, are out of date.
 
 ## What is true now

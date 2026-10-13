@@ -19,10 +19,15 @@ export default async function DashboardPage() {
   const byId = new Map();
   for (const member of ring.members) {
     const extra = extras.get(member.agent_id) || {};
-    if (byId.has(member.agent_id) && byId.get(member.agent_id).join_issue !== member.join_issue) {
-      byId.set(`${member.agent_id}#${member.join_issue}`, { ...extra, ...member, agent_id: `${member.agent_id}#${member.join_issue}`, in_ring: true });
+    const plain = member.agent_id;
+    const existing = byId.get(plain);
+    if (existing && existing.join_issue !== member.join_issue) {
+      const incoming = { ...extra, ...member, in_ring: true };
+      const [keep, move] = Number(existing.join_issue) <= Number(member.join_issue) ? [existing, incoming] : [incoming, existing];
+      byId.set(plain, { ...keep, agent_id: plain });
+      byId.set(`${plain}#${move.join_issue}`, { ...move, agent_id: `${plain}#${move.join_issue}` });
     } else {
-      byId.set(member.agent_id, { ...extra, ...member, in_ring: true });
+      byId.set(plain, { ...extra, ...member, in_ring: true });
     }
   }
   const rows = [...byId.values()].map((agent) => {
