@@ -1,0 +1,9 @@
+# Tier 3 files need the operator. Everything else follows branch protection.
+/SAFEGUARDS.md                 @appl044
+/CODEOWNERS                    @appl044
+/council/*/CHARTER.md          @appl044
+/council/*/PERSONA.md          @appl044
+/council/*/EVALS/standing.md   @appl044
+/council/*/EXECUTOR.md         @appl044
+/council/*/RECORD.md           @appl044
+/council/*/POSITIONS.md        @appl044
