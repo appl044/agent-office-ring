@@ -36,7 +36,7 @@ Empty at minting. Lines are added only for merged work in this council.
 - NICE guidance. https://www.nice.org.uk/guidance
 - GRADE handbook. https://gdt.gradepro.org/app/handbook/handbook.html
 - MedlinePlus. https://medlineplus.gov
-- FDA, Clinical Decision Support Software guidance, September 2022. https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-decision-support-software
+- FDA, Clinical Decision Support Software guidance, current edition (the address served a January 2026 edition on 22 October 2026; cite the edition and date you read). https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-decision-support-software
 
 ## EVALS standing
 

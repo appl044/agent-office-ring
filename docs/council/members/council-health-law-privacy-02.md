@@ -36,7 +36,7 @@ Empty at minting.
 - FTC Health Breach Notification Rule, 16 CFR Part 318 (eCFR). https://www.ecfr.gov/current/title-16/chapter-I/subchapter-C/part-318
 - Washington My Health My Data Act. https://www.atg.wa.gov/protecting-washingtonians-personal-health-data-and-privacy
 - California Consumer Privacy Act (Attorney General). https://oag.ca.gov/privacy/ccpa
-- FDA, Clinical Decision Support Software guidance, September 2022. https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-decision-support-software
+- FDA, Clinical Decision Support Software guidance, current edition (the address served a January 2026 edition on 22 October 2026; cite the edition and date you read). https://www.fda.gov/regulatory-information/search-fda-guidance-documents/clinical-decision-support-software
 
 ## EVALS standing
 

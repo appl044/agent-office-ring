@@ -2,7 +2,29 @@
 
 Six enduring specialist agents. Written 22 October 2026 for the Agent Office Ring. This replaces the missing directive V4 as the working design. When that document arrives, each disagreement gets tied to its line and this file is revised.
 
-Nothing in this document has been minted. Minting is a Tier 3 action and waits for the operator.
+## Status, 22 October 2026, afternoon
+
+The operator said "run it". All six are minted, joined, and merged.
+
+| agent_id | Join issue | Executor | First run |
+| --- | --- | --- | --- |
+| `council-clinical-evidence-01` | [#91](https://github.com/appl044/agent-office-ring/issues/91) | `bc-e47c062c-b8dc-4043-a5f1-d259c38be812` | 4 of 4 pass. Cochrane bot-blocked; FDA guidance address now serves the January 2026 edition. |
+| `council-health-law-privacy-02` | [#92](https://github.com/appl044/agent-office-ring/issues/92) | `bc-1f08ef77-306e-4638-8b48-a28e6c9ef159` | Passes except question 2, which it refused to answer until a current FDA source is verified. |
+| `council-insurance-claims-03` | [#93](https://github.com/appl044/agent-office-ring/issues/93) | `bc-4987d749-b194-4f02-8b0a-e54c4ed844b8` | All seeds verified. Question 3 partial: the CMS landing page names fewer protections than the answer does, and the answer says so. |
+| `council-behavioral-care-04` | [#94](https://github.com/appl044/agent-office-ring/issues/94) | `bc-c06f85e9-215b-4747-90b4-00c85b035e61` | Passes. plainlanguage.gov moved to digital.gov and went to CANDIDATES. |
+| `council-systems-ai-05` | [#95](https://github.com/appl044/agent-office-ring/issues/95) | `bc-9f2249f4-558e-4eb5-aebd-63d542445331` | Passes. HHS Section 1557 page not reachable and moved to CANDIDATES. |
+| `council-health-economics-06` | [#96](https://github.com/appl044/agent-office-ring/issues/96) | `bc-f98bfc47-340c-42f5-91fc-fea15148e524` | 3 of 4. Failed its own question 3 because Unit Economics v4.42 is not a verifiable source inside the repository. |
+
+Private repository: https://github.com/appl044/expert-council. `main` takes pull requests only, no force pushes, code-owner review on Tier 3 files. Pull requests 1 through 8 are merged.
+
+Dashboard proof: Ask on the Clinical Evidence Reviewer row with eval question 2 returned a graded fail of the A1c line, NICE NG28 1.5.5, a rewrite as clinician questions, the red line, and the file it spoke from. 14 seconds.
+
+Two things the first runs taught:
+
+1. Internal documents are not sources until they are in the repository. Unit Economics v4.42 and the Council of Nine review need to be placed under `docs/internal/` in `expert-council` before members 5 and 6 can cite them. That is the operator's call on what business material the council may hold.
+2. Seed addresses age. The FDA Clinical Decision Support guidance now serves a January 2026 edition. Members must cite the edition they read, with its date.
+
+Minting was authorized by the operator on 22 October 2026. The rest of this document is the design as written that morning.
 
 ## 1. What the council is
 
@@ -88,12 +110,13 @@ curl -sS -X POST https://api.cursor.com/v1/agents \
   -H "Authorization: Bearer $CURSOR_API_KEY" -H 'content-type: application/json' \
   -d @- <<'EOF'
 {
-  "prompt": { "text": "<contents of docs/council/MINTING_PROMPT.md with AGENT_ID filled in>" },
-  "source": { "repository": "https://github.com/appl044/expert-council", "ref": "main" },
-  "model": "claude-opus-5-5",
   "name": "council: Clinical Evidence Reviewer",
-  "workOnCurrentBranch": false,
-  "target": { "autoCreatePr": true }
+  "prompt": { "text": "<contents of docs/council/MINTING_PROMPT.md with AGENT_ID filled in>" },
+  "mode": "agent",
+  "model": { "id": "claude-opus-5-5" },
+  "repos": [{ "url": "https://github.com/appl044/expert-council", "startingRef": "main" }],
+  "autoCreatePR": true,
+  "workOnCurrentBranch": false
 }
 EOF
 ```
@@ -118,7 +141,7 @@ The ring files the join issue, approves it, attaches the `bc-` id, and the row a
 
 **Step 5. Model rotation proof (builder, operator merges).**
 
-Start a run on the same `bc-` id with model `gpt-5.6-sol` and the instruction to rerun `EVALS/standing.md` into a new file. Compare scores. The journal records which model is kept. Operator merges.
+Start a run on the same `bc-` id (`POST /v1/agents/{id}/runs` with `model: { "id": "gpt-5.6-sol" }`; the follow-up call does not accept `autoCreatePR`, so the prompt asks for the pull request) and the instruction to rerun `EVALS/standing.md` into a new file. Compare scores. The journal records which model is kept. Operator merges.
 
 **Step 6. Members 2 through 6.**
 
